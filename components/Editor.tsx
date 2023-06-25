@@ -3,40 +3,22 @@ import { Box, Flex } from '@chakra-ui/react';
 import jsPDF from 'jspdf';
 import { fabric } from 'fabric';
 
-import { FabricJSCanvas, useFabricJSEditor } from 'fabricjs-react';
+import {
+  FabricJSCanvas,
+  FabricJSEditor,
+  useFabricJSEditor,
+} from 'fabricjs-react';
 import { IoAdd } from 'react-icons/io5';
+import CanvasBackground from './BackgroundPanel';
+import { Canvas } from 'fabric/fabric-impl';
 
-const Editor = () => {
-  const { editor, onReady } = useFabricJSEditor();
-  const [editorState, setEditorState] = React.useState<{
-    activeIndex: number;
-    objects: (Object | null)[];
-  }>({
-    activeIndex: 0,
-    objects: [null],
-  });
-  const { activeIndex, objects } = editorState;
-
-  React.useEffect(() => {
-    if (editor) {
-      const handler = () => saveCanvasState(editor.canvas);
-      editor.canvas.on({
-        'object:modified': handler,
-        'object:added': handler,
-        'object:removed': handler,
-      });
-
-      return () => {
-        // clean up the event handlers when the component is unmounted or the editor changes
-        editor.canvas.off({
-          'object:modified': handler,
-          'object:added': handler,
-          'object:removed': handler,
-        });
-      };
-    }
-  }, [editor]);
-
+const Editor = ({
+  editor,
+  onReady,
+}: {
+  editor: FabricJSEditor | undefined;
+  onReady: (canvas: Canvas) => void;
+}) => {
   const onAddCircle = () => {
     editor?.addCircle();
   };
@@ -56,31 +38,6 @@ const Editor = () => {
       editor?.canvas.add(oImg);
     });
   };
-
-  function saveCanvasState(canvas: any) {
-    const json = canvas?.toJSON();
-    let newObjects;
-
-    // Check if object already exists at the activeIndex
-    if (activeIndex < objects.length) {
-      // Update existing object
-      newObjects = objects.map((object, index) =>
-        index === activeIndex ? json : object
-      );
-    } else {
-      // Insert new object
-      newObjects = [
-        ...objects.slice(0, activeIndex),
-        json,
-        ...objects.slice(activeIndex),
-      ];
-    }
-
-    setEditorState({
-      ...editorState,
-      objects: newObjects,
-    });
-  }
 
   async function exportPDF() {
     const scaleFactor = 300 / 96; // Increase DPI from 96 (default) to 300
@@ -127,23 +84,6 @@ const Editor = () => {
     pdf.save('download.pdf');
   }
 
-  React.useEffect(() => {
-    const json = objects[activeIndex];
-    loadJSON(json);
-  }, [activeIndex]);
-
-  const loadJSON = (JSON: object | null) => {
-    if (editor && editor.canvas) {
-      if (!JSON) {
-        // Clear the canvas if no SVG string is provided
-        editor.canvas.clear();
-      } else {
-        // Load the SVG string into the canvas
-        editor.canvas.loadFromJSON(JSON);
-      }
-    }
-  };
-
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files[0];
     if (file) {
@@ -173,11 +113,7 @@ const Editor = () => {
 
   React.useEffect(() => {
     const handleClickOutsideCanvas = (event: any) => {
-      if (
-        editor &&
-        editor.canvas &&
-        !editor.canvas.wrapperEl.contains(event.target)
-      ) {
+      if (editor && editor.canvas && !editor.canvas.contains(event.target)) {
         editor.canvas.discardActiveObject().renderAll();
       }
     };
@@ -211,50 +147,6 @@ const Editor = () => {
         p="1"
         onReady={onReady}
       />
-      <Flex flexWrap={'wrap'} mt="4" gap="2" justifyContent={'center'}>
-        {objects.map((object, index) => (
-          <Box
-            as="button"
-            key={index}
-            border={'2px'}
-            borderColor={activeIndex === index ? 'blue.300' : 'gray.200'}
-            display={'grid'}
-            placeItems={'center'}
-            width="40px"
-            height="40px"
-            bgColor={'white'}
-            onClick={() => {
-              setEditorState({
-                activeIndex: index,
-                objects,
-              });
-            }}
-          >
-            {index + 1}
-          </Box>
-        ))}
-        <Box
-          as="button"
-          display={'grid'}
-          _hover={{
-            borderColor: 'gray.400',
-          }}
-          placeItems={'center'}
-          border={'2px'}
-          borderColor={'gray.200'}
-          bgColor={'white'}
-          width="40px"
-          height="40px"
-          onClick={() => {
-            setEditorState({
-              activeIndex: objects.length,
-              objects: [...objects, null],
-            });
-          }}
-        >
-          <IoAdd />
-        </Box>
-      </Flex>
     </Box>
   );
 };

@@ -1,36 +1,10 @@
-import Head from 'next/head';
-import Image from 'next/image';
+import EditorWrapper from '@/components/EditorWrapper';
+import { Box } from '@chakra-ui/react';
 import { Inter } from 'next/font/google';
-import styles from '@/styles/Home.module.css';
-import Editor from '@/components/Editor';
-import { Box, Button, Flex, TabList, Tabs, Tooltip } from '@chakra-ui/react';
-import { IoImage, IoScanSharp, IoStar, IoText } from 'react-icons/io5';
+import Head from 'next/head';
 import React from 'react';
 
 const inter = Inter({ subsets: ['latin'] });
-
-const tabs = [
-  {
-    name: 'Background',
-    icon: IoScanSharp,
-    children: <p>Background</p>,
-  },
-  {
-    name: 'Text',
-    icon: IoText,
-    children: <p>Text</p>,
-  },
-  {
-    name: 'Image',
-    icon: IoImage,
-    children: <p>Image</p>,
-  },
-  {
-    name: 'Shape',
-    icon: IoStar,
-    children: <p>Shape</p>,
-  },
-];
 
 export default function Home() {
   const [tabIndex, setTabIndex] = React.useState(0);
@@ -51,49 +25,7 @@ export default function Home() {
         h="100vh"
         w="100vw"
       >
-        <Flex
-          borderRadius={'md'}
-          height={'100%'}
-          flexDir={'column'}
-          gap="5px"
-          py="5"
-          px="5px"
-          backgroundColor={'gray.100'}
-        >
-          {tabs.map((tab, index) => (
-            <Tooltip label={tab.name} key={tab.name} placement="right">
-              <Box
-                as="button"
-                p="3"
-                borderRadius={'md'}
-                bgColor={tabIndex === index ? 'white' : 'gray.100'}
-                boxShadow={tabIndex === index ? 'lg' : 'none'}
-                _hover={{
-                  bgColor: 'white',
-                }}
-                onClick={() => setTabIndex(index)}
-                display={'flex'}
-                gap="5px"
-              >
-                <tab.icon aria-describedby="name" />
-              </Box>
-            </Tooltip>
-          ))}
-        </Flex>
-        <Box
-          w={'25%'}
-          py="5"
-          px="10px"
-          maxW="sm"
-          borderRight={'1px'}
-          borderColor={'#eee'}
-        >
-          {tabIndex >= 0 ? tabs[tabIndex].children : null}
-        </Box>
-
-        <Flex py="5" grow="1" flexDir={'column'} height={'100%'}>
-          <Editor />
-        </Flex>
+        <EditorWrapper />
       </Box>
     </>
   );
