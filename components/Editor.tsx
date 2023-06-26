@@ -23,11 +23,6 @@ const Editor = ({
     editor?.addCircle();
   };
 
-  const onAddText = () => {
-    const text = new fabric.IText('Hello, World!', { left: 10, top: 10 });
-    editor?.canvas.add(text);
-  };
-
   const onAddRectangle = () => {
     editor?.addRectangle();
   };
@@ -95,35 +90,19 @@ const Editor = ({
     }
   };
 
-  const bringToFront = () => {
-    const activeObject = editor?.canvas.getActiveObject();
-    if (activeObject) {
-      activeObject.bringToFront();
-      editor?.canvas.renderAll();
-    }
-  };
+  // React.useEffect(() => {
+  //   const handleClickOutsideCanvas = (event: any) => {
+  //     if (editor && editor.canvas && !editor.canvas.contains(event.target)) {
+  //       editor.canvas.discardActiveObject().renderAll();
+  //     }
+  //   };
 
-  const sendToBack = () => {
-    const activeObject = editor?.canvas.getActiveObject();
-    if (activeObject) {
-      activeObject.sendToBack();
-      editor?.canvas.renderAll();
-    }
-  };
+  //   document.addEventListener('mousedown', handleClickOutsideCanvas);
 
-  React.useEffect(() => {
-    const handleClickOutsideCanvas = (event: any) => {
-      if (editor && editor.canvas && !editor.canvas.contains(event.target)) {
-        editor.canvas.discardActiveObject().renderAll();
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutsideCanvas);
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutsideCanvas);
-    };
-  }, [editor]);
+  //   return () => {
+  //     document.removeEventListener('mousedown', handleClickOutsideCanvas);
+  //   };
+  // }, [editor]);
 
   return (
     <Box display={'flex'} flexDirection={'column'}>

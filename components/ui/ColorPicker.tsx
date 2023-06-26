@@ -54,6 +54,7 @@ export const ColorPicker = ({
           borderRadius={'md'}
           boxShadow={'lg'}
           ref={popover}
+          zIndex={'10'}
         >
           <HexColorPicker color={color} onChange={onChange} />
         </Box>
