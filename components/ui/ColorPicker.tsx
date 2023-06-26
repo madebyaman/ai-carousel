@@ -6,10 +6,8 @@ import { HexColorPicker } from 'react-colorful';
 export const ColorPicker = ({
   color,
   onChange,
-  label,
 }: {
   color: string;
-  label: string;
   onChange: (color: string) => void;
 }) => {
   const popover = useRef<HTMLDivElement | null>(null);

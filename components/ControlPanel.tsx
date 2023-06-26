@@ -13,7 +13,7 @@ export default function ControlPanel({
       maxW="sm"
       borderRight={'1px'}
       borderColor={'gray.200'}
-      bgColor={'gray.50'}
+      bgColor={'gray.100'}
     >
       {children}
     </Box>
