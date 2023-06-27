@@ -122,8 +122,6 @@ const Editor = ({
         className="sample-canvas"
         backgroundColor={'white'}
         boxShadow={'md'}
-        borderRadius={'md'}
-        p="1"
         onReady={onReady}
       />
     </Box>

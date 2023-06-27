@@ -15,28 +15,12 @@ import {
 import { ColorPicker } from './ui/ColorPicker';
 import { fabric } from 'fabric';
 import DeleteButton from './ui/DeleteButton';
+import TertiaryButton from './ui/TertiaryButton';
 
 const ImagePanel = ({ editor, saveCanvas }) => {
   const [borderColor, setBorderColor] = useState('#000000');
   const [borderWidth, setBorderWidth] = useState(0);
   const [imageFilters, setImageFilters] = useState<string>('none');
-
-  const uploadImage = (e: any) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const img = new Image();
-        img.onload = () => {
-          const fabricImage = new fabric.Image(img);
-          editor?.canvas.add(fabricImage);
-          saveCanvas();
-        };
-        img.src = event.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const handleBorderWidthChange = (value: number) => {
     const activeObject = editor?.canvas.getActiveObject();
@@ -46,6 +30,23 @@ const ImagePanel = ({ editor, saveCanvas }) => {
       saveCanvas();
       setBorderWidth(value);
     }
+  };
+  const url =
+    'https://www.dropbox.com/s/t00p7co53dp5zv1/undraw_data_processing_yrrv.png?raw=1';
+
+  const uploadImage = (e: any) => {
+    // const file = e.target.files[0];
+    // if (file) {
+    // const url = URL.createObjectURL(file);
+    fabric.Image.fromURL(url, function (img) {
+      const maxWidth = 500; // Set this to the maximum width you want
+      if (img?.width > maxWidth) {
+        img.scaleToWidth(maxWidth);
+      }
+      editor?.canvas.add(img);
+      saveCanvas();
+    });
+    // }
   };
 
   const handleBorderColorChange = (value: string) => {
@@ -86,9 +87,9 @@ const ImagePanel = ({ editor, saveCanvas }) => {
     }
     activeObject.filters = filters;
     activeObject.applyFilters();
+
     editor?.canvas.renderAll();
     saveCanvas();
-
     setImageFilters(filterType);
   };
 
@@ -206,6 +207,28 @@ const ImagePanel = ({ editor, saveCanvas }) => {
               <option value="grayscale">Grayscale</option>
             </Select>
           </Box>
+          <TertiaryButton
+            onClick={() => {
+              const activeObject = editor?.canvas.getActiveObject();
+              if (activeObject) {
+                activeObject.bringToFront();
+                editor?.canvas.renderAll();
+              }
+            }}
+          >
+            Bring to Front
+          </TertiaryButton>
+          <TertiaryButton
+            onClick={() => {
+              const activeObject = editor?.canvas.getActiveObject();
+              if (activeObject) {
+                activeObject.sendToBack();
+                editor?.canvas.renderAll();
+              }
+            }}
+          >
+            Send to Back
+          </TertiaryButton>
           <DeleteButton
             onClick={() => {
               const activeObject = editor?.canvas.getActiveObject();

@@ -15,7 +15,7 @@ export default function BackgroundPanel({
 }) {
   const snap = useSnapshot(state);
   const { activeIndex, editorState } = snap;
-  const color = editorState[activeIndex].bgColor;
+  const bgColor = editorState[activeIndex].bgColor;
 
   const changeBackgroundColor = (color: string) => {
     if (editor && editor.canvas) {
@@ -35,8 +35,7 @@ export default function BackgroundPanel({
       <Flex gap="1" flexDir={'column'}>
         <Text>Background Color</Text>
         <ColorPicker
-          label="Background Color"
-          color={color} // Use state for displaying the color
+          color={bgColor} // Use state for displaying the color
           onChange={changeBackgroundColor}
         />
       </Flex>

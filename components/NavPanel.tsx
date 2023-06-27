@@ -1,3 +1,4 @@
+import { state } from '@/utils/editorState';
 import { Box, Flex, Tooltip } from '@chakra-ui/react';
 import { FabricJSEditor } from 'fabricjs-react';
 import { IconType } from 'react-icons';
@@ -8,6 +9,7 @@ import {
   IoStar,
   IoText,
 } from 'react-icons/io5';
+import { useSnapshot } from 'valtio';
 
 export default function NavPanel({
   tabIndex,
@@ -21,11 +23,14 @@ export default function NavPanel({
     icon: IconType;
     children: ({
       editor,
+      saveCanvas,
     }: {
       editor: FabricJSEditor | null | undefined;
+      saveCanvas: () => void;
     }) => React.JSX.Element;
   }[];
 }) {
+  const snap = useSnapshot(state);
   return (
     <Flex
       borderRadius={'md'}
@@ -66,7 +71,36 @@ export default function NavPanel({
           _hover={{
             bgColor: '#005ce6',
           }}
-          onClick={() => null}
+          onClick={() => {
+            localStorage.setItem(
+              'editorState',
+              JSON.stringify(state.editorState)
+            );
+          }}
+          display={'flex'}
+          gap="5px"
+        >
+          <IoArrowDown />
+        </Box>
+      </Tooltip>
+      <Tooltip label={'Load'} placement="right">
+        <Box
+          as="button"
+          p="3"
+          borderRadius={'md'}
+          bgColor={'gray.500'}
+          textColor={'white'}
+          boxShadow={'none'}
+          _hover={{
+            bgColor: '#005ce6',
+          }}
+          onClick={() => {
+            const json = localStorage.getItem('editorState');
+            if (json) {
+              state.editorState = JSON.parse(json);
+              state.activeIndex = 0;
+            }
+          }}
           display={'flex'}
           gap="5px"
         >

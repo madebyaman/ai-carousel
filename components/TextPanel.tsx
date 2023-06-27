@@ -1,26 +1,33 @@
 import { FabricJSEditor } from 'fabricjs-react';
 import SecondaryButton from './ui/SecondaryButton';
-import {
-  Box,
-  Checkbox,
-  Flex,
-  Heading,
-  Select,
-  Slider,
-  SliderFilledTrack,
-  SliderThumb,
-  SliderTrack,
-  Text,
-} from '@chakra-ui/react';
+import { Box, Flex, Heading, Select, Text } from '@chakra-ui/react';
 import { ColorPicker } from './ui/ColorPicker';
 import React from 'react';
 import * as Toggle from '@radix-ui/react-toggle';
 import { fabric } from 'fabric';
 import { AiOutlineBold, AiOutlineItalic } from 'react-icons/ai';
-import { isRgbColor, rgbToHex } from '@/utils/color';
+import { isHexColor, isRgbColor, rgbToHex } from '@/utils/color';
 import FontFaceObserver from 'fontfaceobserver';
+import NumberChanger from './ui/NumberChange';
+import DeleteButton from './ui/DeleteButton';
 
-const FONTS = ['Inter', 'Roboto', 'Montserrat', 'Lato', 'Oswald'];
+const FONTS = [
+  'Inter',
+  'Roboto',
+  'Montserrat',
+  'Lato',
+  'Oswald',
+  'Open Sans',
+  'Ubuntu',
+  'Raleway',
+  'Merriweather',
+  'Nunito',
+  'Dancing Script',
+  'Abril Fatface',
+  'Pacifico',
+  'Playfair Display',
+  'Bitter',
+];
 
 export default function TextPanel({
   editor,
@@ -29,30 +36,6 @@ export default function TextPanel({
   editor: FabricJSEditor | null | undefined;
   saveCanvas: () => void;
 }) {
-  const loadFont = (fontName: string) => {
-    return new Promise((resolve, reject) => {
-      // Remove the old font link if it exists
-      const oldLink = document.querySelector('#dynamic-font');
-      oldLink && oldLink.parentNode?.removeChild(oldLink);
-
-      // Create a new link element
-      const link = document.createElement('link');
-      link.id = 'dynamic-font';
-      link.href = `https://fonts.googleapis.com/css?family=${fontName.replace(
-        ' ',
-        '+'
-      )}&display=swap`;
-      link.rel = 'stylesheet';
-
-      // Append the new link element to the head of the document
-      document.head.appendChild(link);
-
-      // Resolve the promise once the font has been loaded
-      link.onload = () => resolve(null);
-      link.onerror = () => reject(new Error('Failed to load font'));
-    });
-  };
-
   const [textProps, setTextProps] = React.useState({
     color: '#000000',
     fontSize: 14,
@@ -60,18 +43,10 @@ export default function TextPanel({
     isItalic: false,
     textBackgroundColor: '#ffffff',
     fontFamily: 'Inter',
-    loadingFont: false,
   });
 
-  const {
-    color,
-    fontSize,
-    loadingFont,
-    isBold,
-    isItalic,
-    textBackgroundColor,
-    fontFamily,
-  } = textProps;
+  const { color, fontSize, isBold, isItalic, textBackgroundColor, fontFamily } =
+    textProps;
 
   const bringToFront = () => {
     const activeObject = editor?.canvas.getActiveObject();
@@ -126,12 +101,18 @@ export default function TextPanel({
 
         setTextProps({
           ...textProps,
-          color: isRgbColor(currentColor) ? rgbToHex(currentColor) : color,
+          color: isHexColor(currentColor)
+            ? currentColor
+            : isRgbColor(currentColor)
+            ? rgbToHex(currentColor)
+            : color,
           fontFamily: currentFont ?? fontFamily,
           fontSize: currentSize ?? fontSize,
           isBold: currentWeight === 'bold',
           isItalic: currentStyle === 'italic',
-          textBackgroundColor: isRgbColor(currentBgColor)
+          textBackgroundColor: isHexColor(currentBgColor)
+            ? currentBgColor
+            : isRgbColor(currentBgColor)
             ? rgbToHex(currentBgColor)
             : textBackgroundColor,
         });
@@ -267,7 +248,6 @@ export default function TextPanel({
           <Flex gap="1" flexDir={'column'} mb="3">
             <Text>Text Color</Text>
             <ColorPicker
-              label="Text Color"
               color={color} // Use state for displaying the color
               onChange={(newColor) => updateTextProps({ color: newColor })}
             />
@@ -287,26 +267,30 @@ export default function TextPanel({
           </Box>
           <Box mb="3">
             <Text>Font Size</Text>
-            <Slider
-              min={10}
-              max={72}
-              value={fontSize}
-              onChange={(newSize) => updateTextProps({ fontSize: newSize })}
-            >
-              <SliderTrack>
-                <SliderFilledTrack />
-              </SliderTrack>
-              <SliderThumb />
-            </Slider>
+            <NumberChanger
+              number={fontSize}
+              setNumber={(num) => updateTextProps({ fontSize: num })}
+            />
           </Box>
           <Text>Text Background Color</Text>
           <ColorPicker
-            label="Text background color"
             color={textBackgroundColor}
             onChange={(newColor) =>
               updateTextProps({ textBackgroundColor: newColor })
             }
           />
+          <DeleteButton
+            onClick={() => {
+              const activeObject = editor?.canvas.getActiveObject();
+              if (activeObject) {
+                editor?.canvas.remove(activeObject);
+                editor?.canvas.renderAll();
+                saveCanvas();
+              }
+            }}
+          >
+            Delete
+          </DeleteButton>
         </>
       ) : (
         <SecondaryButton width={'full'} mb="3" onClick={onAddText}>

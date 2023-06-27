@@ -24,7 +24,9 @@ export const ColorPicker = ({
         borderLeftRadius={'md'}
         border={'1px solid #fff'}
         boxShadow={'sm'}
-        bgColor={color}
+        style={{
+          backgroundColor: color,
+        }}
         cursor={'pointer'}
         onClick={() => toggle(true)}
       />

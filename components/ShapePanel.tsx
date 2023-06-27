@@ -12,7 +12,7 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { ColorPicker } from './ui/ColorPicker';
-import SecondaryButton from './ui/SecondaryButton';
+import DeleteButton from './ui/DeleteButton';
 
 const ShapePanel = ({ editor, saveCanvas }) => {
   const [shapeType, setShapeType] = useState<string>('');
@@ -96,6 +96,13 @@ const ShapePanel = ({ editor, saveCanvas }) => {
       if (activeObject.type === 'rectangle') {
         setBorderRadius(activeObject.rx);
       }
+    } else {
+      setShapeType('');
+      setFillColor('#000000');
+      setBorderColor('#000000');
+      setBorderWidth(1);
+      setBorderStyle('none');
+      setBorderRadius(0);
     }
   };
 
@@ -136,6 +143,13 @@ const ShapePanel = ({ editor, saveCanvas }) => {
           fill: fillColor,
           stroke: borderColor,
         });
+      case 'line':
+        shape = new fabric.Line([50, 100, 200, 100], {
+          top: editor?.canvas.getHeight() / 2,
+          left: editor?.canvas.getWidth() / 2,
+          stroke: borderColor,
+          padding: 10,
+        });
         break;
       default:
         return;
@@ -153,10 +167,12 @@ const ShapePanel = ({ editor, saveCanvas }) => {
       </Heading>
       {isShapeSelected() ? (
         <>
-          <Box mb="3">
-            <Text>Fill Color</Text>
-            <ColorPicker color={fillColor} onChange={handleFillColorChange} />
-          </Box>
+          {shapeType !== 'line' && (
+            <Box mb="3">
+              <Text>Fill Color</Text>
+              <ColorPicker color={fillColor} onChange={handleFillColorChange} />
+            </Box>
+          )}
           <Box mb="3">
             <Text>Border Style</Text>
             <Select
@@ -208,14 +224,28 @@ const ShapePanel = ({ editor, saveCanvas }) => {
               </Slider>
             </Box>
           )}
+          <DeleteButton
+            onClick={() => {
+              const activeObject = editor?.canvas.getActiveObject();
+              if (activeObject) {
+                editor?.canvas.remove(activeObject);
+                editor?.canvas.renderAll();
+                saveCanvas();
+              }
+            }}
+          >
+            Delete
+          </DeleteButton>
         </>
       ) : (
         <>
           <Text>Select a Shape to Add</Text>
           <Select value={shapeType} onChange={(e) => addShape(e.target.value)}>
+            <option value="">Shape</option>
             <option value="rectangle">Rectangle</option>
             <option value="circle">Circle</option>
             <option value="triangle">Triangle</option>
+            <option value="line">Line</option>
           </Select>
         </>
       )}

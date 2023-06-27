@@ -1,9 +1,19 @@
-import { Box, Flex } from '@chakra-ui/react';
-import { proxy, useSnapshot } from 'valtio';
+import { Box, Flex, IconButton, Tooltip } from '@chakra-ui/react';
+import { useSnapshot } from 'valtio';
 import Editor from './Editor';
 import NavPanel from './NavPanel';
 import { useFabricJSEditor } from 'fabricjs-react';
-import { IoAdd, IoImage, IoScanSharp, IoStar, IoText } from 'react-icons/io5';
+import {
+  IoAdd,
+  IoCopy,
+  IoCopyOutline,
+  IoImage,
+  IoScanSharp,
+  IoStar,
+  IoText,
+  IoTrash,
+  IoTrashOutline,
+} from 'react-icons/io5';
 import React from 'react';
 import ControlPanel from './ControlPanel';
 import BackgroundPanel from './BackgroundPanel';
@@ -116,49 +126,91 @@ export default function EditorWrapper() {
       <ControlPanel>
         <activeTab.children editor={editor} saveCanvas={saveCanvasState} />
       </ControlPanel>
-      <Flex py="5" grow="1" flexDir={'column'} height={'100%'}>
-        <Editor editor={editor} onReady={onReady} />
-        <Flex flexWrap={'wrap'} mt="4" gap="2" justifyContent={'center'}>
-          {editorState.map((object, index) => (
+      <Flex py="5" grow="1" height={'100%'} justifyContent={'center'}>
+        <Flex flexDir={'column'}>
+          <Flex display={'inline-flex'} justifyContent={'flex-end'}>
+            <Tooltip label="Delete" aria-label="Delete">
+              <IconButton
+                bgColor={'transparent'}
+                icon={<IoTrashOutline />}
+                aria-label="Delete"
+                onClick={() => {
+                  if (editorState.length <= 1) {
+                    // set json to null
+                    return;
+                  }
+                  state.editorState = editorState.filter(
+                    (_, index) => index !== activeIndex
+                  );
+                  state.activeIndex = activeIndex - 1 < 0 ? 0 : activeIndex - 1;
+                }}
+                _hover={{
+                  bgColor: 'gray.100',
+                }}
+              />
+            </Tooltip>
+            <Tooltip label="Copy" aria-label="Copy">
+              <IconButton
+                bgColor={'transparent'}
+                icon={<IoCopyOutline />}
+                aria-label="Copy"
+                onClick={() => {
+                  state.editorState = [
+                    ...editorState.slice(0, activeIndex + 1),
+                    editorState[activeIndex],
+                    ...editorState.slice(activeIndex + 1),
+                  ];
+                  state.activeIndex = activeIndex + 1;
+                }}
+                _hover={{
+                  bgColor: 'gray.100',
+                }}
+              />
+            </Tooltip>
+          </Flex>
+          <Editor editor={editor} onReady={onReady} />
+          <Flex flexWrap={'wrap'} mt="4" gap="2" justifyContent={'center'}>
+            {editorState.map((object, index) => (
+              <Box
+                as="button"
+                key={index}
+                border={'2px'}
+                borderColor={activeIndex === index ? 'blue.300' : 'gray.200'}
+                display={'grid'}
+                placeItems={'center'}
+                width="40px"
+                height="40px"
+                bgColor={'white'}
+                onClick={() => {
+                  state.activeIndex = index;
+                }}
+              >
+                {index + 1}
+              </Box>
+            ))}
             <Box
               as="button"
-              key={index}
-              border={'2px'}
-              borderColor={activeIndex === index ? 'blue.300' : 'gray.200'}
               display={'grid'}
+              _hover={{
+                borderColor: 'gray.400',
+              }}
               placeItems={'center'}
+              border={'2px'}
+              borderColor={'gray.200'}
+              bgColor={'white'}
               width="40px"
               height="40px"
-              bgColor={'white'}
               onClick={() => {
-                state.activeIndex = index;
+                state.activeIndex = editorState.length;
+                state.editorState = [
+                  ...editorState,
+                  { bgColor: '#ffffff', json: null },
+                ];
               }}
             >
-              {index + 1}
+              <IoAdd />
             </Box>
-          ))}
-          <Box
-            as="button"
-            display={'grid'}
-            _hover={{
-              borderColor: 'gray.400',
-            }}
-            placeItems={'center'}
-            border={'2px'}
-            borderColor={'gray.200'}
-            bgColor={'white'}
-            width="40px"
-            height="40px"
-            onClick={() => {
-              state.activeIndex = editorState.length;
-              state.editorState = [
-                ...editorState,
-                { bgColor: '#ffffff', json: null },
-              ];
-            }}
-          >
-            <IoAdd />
-          </Box>
+          </Flex>
         </Flex>
       </Flex>
     </>

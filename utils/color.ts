@@ -3,6 +3,12 @@ export function isRgbColor(color: string | any) {
   return rgbPattern.test(color);
 }
 
+export function isHexColor(color: string | any): boolean {
+  const hexColorRegex = /^#([0-9A-F]{3}){1,2}$/i;
+  return hexColorRegex.test(color);
+}
+
+
 export function rgbToHex(rgb: string | any) {
   var result = /^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/.exec(rgb);
   return result ? '#' +
