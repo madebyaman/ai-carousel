@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Image, Flex, Text, IconButton } from '@chakra-ui/react';
+import React, { useState } from 'react';
+import { Box, Flex, Text } from '@chakra-ui/react';
+import Image from 'next/image';
 import { AnimatePresence, motion } from 'framer-motion';
 import { IoChevronBack, IoChevronForward } from 'react-icons/io5';
 
@@ -50,14 +51,7 @@ const Carousel = ({
           }}
         >
           {images.map((image, index) => (
-            <Image
-              key={image}
-              alt=""
-              src={image}
-              objectFit="cover"
-              width="100%"
-              height="100%"
-            />
+            <Image key={image} width={300} height={300} alt="" src={image} />
           ))}
         </motion.div>
         <Flex

@@ -12,7 +12,6 @@ import {
   Text,
 } from '@chakra-ui/react';
 import { ColorPicker } from './ui/ColorPicker';
-import DeleteButton from './ui/DeleteButton';
 import { RectangleSVG } from './ui/svgs/RectangleSVG';
 import { CircleSVG } from './ui/svgs/Circle';
 import { LineSVG } from './ui/svgs/LineSVG';
@@ -58,14 +57,12 @@ const ShapePanel = ({
   }, [activeObject]);
 
   const uploadSVG = (e: any) => {
-    // const file = e.target.files[0];
-    // const url = URL.createObjectURL(file);
-    // if (!file) return;
-    const url = '/assets/graph-paper.svg';
+    const file = e.target.files[0];
+    const url = URL.createObjectURL(file);
+    if (!file) return;
     fabric.loadSVGFromURL(url, function (objects, options) {
       var svg = fabric.util.groupSVGElements(objects, options);
-      svg.scaleToWidth(300);
-      svg.set({ left: 100, top: 100, fill: fillColor }); // Setting fill color to red
+      svg.set({ left: 100, top: 100 });
       editor?.canvas.add(svg);
       editor?.canvas.renderAll();
     });

@@ -1,6 +1,7 @@
 import Carousel from '@/components/Carousel';
 import Logo from '@/components/Logo';
 import Templates from '@/components/Templates';
+import BackgroundSVG from '@/components/bg-svg';
 import {
   Box,
   Button,
@@ -9,10 +10,11 @@ import {
   Heading,
   Text,
   shouldForwardProp,
+  Image,
 } from '@chakra-ui/react';
 import { motion, isValidMotionProp } from 'framer-motion';
 import Head from 'next/head';
-import Image from 'next/image';
+import NextImage from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 
@@ -30,17 +32,17 @@ const steps = [
   {
     title: 'Pick a template',
     description:
-      'Choose from a variety of templates to get started. You can pick a template and then use AI to populate text based on any topic.',
+      'Choose from a variety of templates to get started. You can pick a template and <strong>then use AI to populate content</strong> based on any topic.',
   },
   {
     title: 'Customize your slides',
     description:
-      'Our powerful editor allows you to customize your slides with a variety of shapes, images, and text.Plus, it has keyboard shortcuts for power users.',
+      'Our powerful editor allows you to customize your slides with a variety of shapes, images, and text. Plus, it has <strong>keyboard shortcuts for power users.</strong>',
   },
   {
     title: 'Download your carousel',
     description:
-      'Once you are done customizing your carousel, you can download it as a PDF file. You can also share it directly to LinkedIn.',
+      'Once you are done customizing your carousel, you can <strong>download it as a PDF file</strong>. Then, you can also share it in LinkedIn.',
   },
 ];
 
@@ -120,8 +122,9 @@ export default function Home() {
               fontSize={'lg'}
               textColor={'gray.600'}
             >
-              Craft captivating LinkedIn carousel posts to elevate your
-              professional image and foster more connections - seamlessly.
+              Craft captivating LinkedIn carousel posts (yourself or with AI) to
+              elevate your professional image and foster more connections -
+              seamlessly.
             </ChakraContent>
             <Button
               as={Link}
@@ -140,10 +143,10 @@ export default function Home() {
             >
               Start creating
             </Button>
-            <Image
-              src="/assets/background.jpg"
-              width={1000}
-              height={500}
+            <NextImage
+              src="/app.png"
+              width={4140 / 3}
+              height={2580 / 3}
               alt="4px"
             />
           </ChakraBox>
@@ -158,9 +161,51 @@ export default function Home() {
             textAlign={'center'}
             textColor={'gray.700'}
           >
-            Templates to quickly get you started
+            Create prettier carousels, faster
           </Heading>
-          <Templates />
+          <Box
+            display={'grid'}
+            gridTemplateColumns={'repeat(auto-fit, minmax(300px, 1fr))'}
+            gap="4"
+            mt="8"
+          >
+            {steps.map((step, i) => (
+              <Box
+                key={i}
+                border="1px"
+                borderColor={'gray.300'}
+                borderRadius={'lg'}
+              >
+                <Box p="8">
+                  <Box
+                    borderRadius={'full'}
+                    display={'flex'}
+                    justifyContent={'center'}
+                    alignItems={'center'}
+                    bgColor="gray.700"
+                    h="30px"
+                    w="30px"
+                    textColor={'white'}
+                  >
+                    {i + 1}
+                  </Box>
+                  <Heading
+                    as="h3"
+                    fontSize={'2xl'}
+                    mt="1"
+                    textColor={'gray.800'}
+                  >
+                    {step.title}
+                  </Heading>
+                  <Text
+                    textColor={'gray.700'}
+                    mt="3"
+                    dangerouslySetInnerHTML={{ __html: step.description }}
+                  />
+                </Box>
+              </Box>
+            ))}
+          </Box>
         </Container>
       </Box>
       <Container maxWidth={'6xl'} my="24">
@@ -171,74 +216,50 @@ export default function Home() {
           textAlign={'center'}
           textColor={'gray.700'}
         >
-          Create prettier carousels, faster
+          Templates to quickly get you started
         </Heading>
+        <Templates />
         <Box
-          display={'grid'}
-          gridTemplateColumns={'repeat(auto-fit, minmax(300px, 1fr))'}
-          gap="4"
-          mt="8"
-        >
-          {steps.map((step, i) => (
-            <Box key={i} className="gray-bg" borderRadius={'lg'}>
-              <Box p="8">
-                <Box
-                  borderRadius={'full'}
-                  display={'flex'}
-                  justifyContent={'center'}
-                  alignItems={'center'}
-                  bgColor="gray.700"
-                  h="30px"
-                  w="30px"
-                  textColor={'white'}
-                >
-                  {i + 1}
-                </Box>
-                <Heading as="h3" fontSize={'2xl'} mt="1" textColor={'gray.800'}>
-                  {step.title}
-                </Heading>
-                <Text textColor={'gray.700'} mt="3">
-                  {step.description}
-                </Text>
-              </Box>
-            </Box>
-          ))}
-        </Box>
-        <Box
-          bgGradient="linear(rgba(0, 102, 255, 0.9) 0%, rgba(0, 102, 255, 0.6) 100%)"
+          bgGradient="linear(330deg, rgba(0, 102, 255, 0.9) 0%, rgba(0, 102, 255, 0.6) 100%)"
           mt="28"
           borderRadius={'lg'}
           p="8"
+          position={'relative'}
         >
-          <Heading as="h2" fontSize={'2xl'} textColor={'white'}>
-            Ready to get started?
-          </Heading>
-          <Text textColor={'white'} mt="3">
-            Create your first carousel in minutes.
-          </Text>
-          <Button
-            as={Link}
-            href="/editor"
-            px={8}
-            py={4}
-            mt="4"
-            fontSize={'lg'}
-            fontWeight="bold"
-            color="gray.800"
-            bgColor="rgba(255, 255, 255, 0.7)"
-            _hover={{
-              bgColor: 'white',
-            }}
-          >
-            Start creating
-          </Button>
+          <BackgroundSVG />
+          <Box maxW="4xl" mx="auto">
+            <Heading as="h2" fontSize={'4xl'} textColor={'white'}>
+              Boost Your LinkedIn Game!
+            </Heading>
+            <Text textColor={'white'} mt="3">
+              Create vibrant, engaging LinkedIn carousel posts effortlessly with
+              our app. Stand out, captivate your audience, and amplify your
+              message. Your professional story deserves to be heard
+            </Text>
+            <Button
+              as={Link}
+              href="/editor"
+              px={8}
+              py={4}
+              mt="4"
+              fontSize={'lg'}
+              fontWeight="bold"
+              color="gray.800"
+              bgColor="rgba(255, 255, 255, 0.8)"
+              _hover={{
+                bgColor: 'white',
+              }}
+            >
+              Start creating
+            </Button>
+          </Box>
         </Box>
       </Container>
       <hr />
       <Container maxWidth={'6xl'} my="6">
         <Text fontSize={'xs'} textColor={'gray.500'} textAlign={'center'}>
           Made with ❤️ by{' '}
-          <Link href="https://twitter.com/imamanthakur">Aman Thakur</Link>
+          <Link href="https://twitter.com/imamanthakur">Aman</Link>
         </Text>
       </Container>
     </>
