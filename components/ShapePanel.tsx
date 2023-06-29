@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { fabric } from 'fabric';
 import {
   Box,
@@ -13,23 +13,63 @@ import {
 } from '@chakra-ui/react';
 import { ColorPicker } from './ui/ColorPicker';
 import DeleteButton from './ui/DeleteButton';
+import { RectangleSVG } from './ui/svgs/RectangleSVG';
+import { CircleSVG } from './ui/svgs/Circle';
+import { StarSVG } from './ui/svgs/Star';
+import { LineSVG } from './ui/svgs/LineSVG';
+import { isHexColor, isRgbColor, rgbToHex } from '@/utils/color';
+import SecondaryButton from './ui/PrimaryButton';
+import { FabricJSEditor } from 'fabricjs-react';
 
-const ShapePanel = ({ editor, saveCanvas }) => {
-  const [shapeType, setShapeType] = useState<string>('');
-  const [fillColor, setFillColor] = useState<string>('#000000');
+const svgList = [
+  'underline.svg',
+  'arrow.svg',
+  'two-lines.svg',
+  'heart.svg',
+  'chat.svg',
+];
+
+const ShapePanel = ({
+  editor,
+  saveCanvas,
+}: {
+  editor: FabricJSEditor | null | undefined;
+  saveCanvas: () => void;
+}) => {
+  const [fillColor, setFillColor] = useState<string>('#777777');
   const [borderColor, setBorderColor] = useState<string>('#000000');
   const [borderRadius, setBorderRadius] = useState<number>(0);
   const [borderStyle, setBorderStyle] = useState<string>('none');
-  const [borderWidth, setBorderWidth] = useState<number>(1);
+  const [borderWidth, setBorderWidth] = useState<number>(0);
 
-  const isShapeSelected = () =>
-    editor?.canvas.getActiveObject() instanceof fabric.Object &&
-    editor?.canvas.getActiveObject().type !== 'image';
+  const activeObject = editor?.canvas.getActiveObject();
+
+  const isShapeSelected = useMemo(() => {
+    return (
+      (activeObject instanceof fabric.Object ||
+        activeObject instanceof fabric.Path) &&
+      activeObject.type !== 'image' &&
+      activeObject.type !== 'textbox'
+    );
+  }, [activeObject]);
+
+  const uploadSVG = (e: any) => {
+    // const file = e.target.files[0];
+    // const url = URL.createObjectURL(file);
+    // if (!file) return;
+    const url = '/assets/graph-paper.svg';
+    fabric.loadSVGFromURL(url, function (objects, options) {
+      var svg = fabric.util.groupSVGElements(objects, options);
+      svg.scaleToWidth(300);
+      svg.set({ left: 100, top: 100, fill: fillColor }); // Setting fill color to red
+      editor?.canvas.add(svg);
+      editor?.canvas.renderAll();
+    });
+  };
 
   const handleBorderWidthChange = (value: number) => {
     setBorderWidth(value);
-    const activeObject = editor?.canvas.getActiveObject();
-    if (activeObject && isShapeSelected()) {
+    if (activeObject && isShapeSelected) {
       activeObject.set({ strokeWidth: value });
       editor?.canvas.renderAll();
       saveCanvas();
@@ -38,19 +78,25 @@ const ShapePanel = ({ editor, saveCanvas }) => {
 
   const handleFillColorChange = (value: string) => {
     setFillColor(value);
-    if (isShapeSelected()) {
-      const activeObject = editor?.canvas.getActiveObject();
-      activeObject.set({ fill: value });
-      editor?.canvas.renderAll();
-      saveCanvas();
+    if (isShapeSelected) {
+      if (activeObject instanceof fabric.Group && activeObject._objects) {
+        activeObject._objects.forEach((path) => {
+          path.set({ fill: value });
+        });
+        editor?.canvas.renderAll();
+        saveCanvas();
+      } else if (activeObject) {
+        activeObject.set({ fill: value });
+        editor?.canvas.renderAll();
+        saveCanvas();
+      }
     }
   };
 
   const handleBorderColorChange = (value: string) => {
     setBorderColor(value);
-    if (isShapeSelected()) {
-      const activeObject = editor?.canvas.getActiveObject();
-      activeObject.set({ stroke: value });
+    if (isShapeSelected) {
+      activeObject?.set({ stroke: value });
       editor?.canvas.renderAll();
       saveCanvas();
     }
@@ -58,13 +104,12 @@ const ShapePanel = ({ editor, saveCanvas }) => {
 
   const handleBorderStyleChange = (value: string) => {
     setBorderStyle(value);
-    if (isShapeSelected()) {
-      const activeObject = editor?.canvas.getActiveObject();
+    if (isShapeSelected) {
       if (value === 'none') {
-        activeObject.set({ strokeWidth: 0 });
+        activeObject?.set({ strokeWidth: 0 });
       } else {
         setBorderWidth(1);
-        activeObject.set({
+        activeObject?.set({
           stroke: borderColor,
           strokeWidth: 1,
         });
@@ -76,28 +121,64 @@ const ShapePanel = ({ editor, saveCanvas }) => {
 
   const handleBorderRadiusChange = (value: number) => {
     setBorderRadius(value);
-    if (isShapeSelected()) {
-      const activeObject = editor?.canvas.getActiveObject();
-      activeObject.set({ rx: value, ry: value });
+    if (isShapeSelected) {
+      activeObject?.set({ rx: value, ry: value });
       console.log(activeObject);
       editor?.canvas.renderAll();
       saveCanvas();
     }
   };
 
+  function loadSVG(url: string) {
+    fabric.loadSVGFromURL(url, function (objects, options) {
+      var svg = fabric.util.groupSVGElements(objects, options);
+      svg.scaleToWidth(300);
+      svg.set({ left: 100, top: 100, fill: fillColor }); // Setting fill color to red
+      editor?.canvas.add(svg);
+      editor?.canvas.renderAll();
+      saveCanvas();
+    });
+  }
+
   const updateShapeFromActiveObject = () => {
-    const activeObject = editor?.canvas.getActiveObject();
     if (activeObject) {
-      setShapeType(activeObject.type);
-      setFillColor(activeObject.fill);
-      setBorderColor(activeObject.stroke);
-      setBorderWidth(activeObject.strokeWidth);
-      setBorderStyle(activeObject.strokeWidth > 0 ? 'solid' : 'none');
+      if (activeObject instanceof fabric.Group && activeObject._objects) {
+        const fillColorOb = activeObject._objects[0].fill;
+        setFillColor(() => {
+          return isHexColor(fillColorOb)
+            ? fillColorOb
+            : isRgbColor(fillColorOb)
+            ? rgbToHex(fillColorOb)
+            : '#000000';
+        });
+      } else {
+        setFillColor(() => {
+          return isHexColor(activeObject.fill)
+            ? activeObject.fill
+            : isRgbColor(activeObject.fill)
+            ? rgbToHex(activeObject.fill)
+            : '#000000';
+        });
+      }
+      if (activeObject.stroke) {
+        setBorderStyle('solid');
+        setBorderWidth(activeObject.strokeWidth);
+        setBorderColor(() => {
+          return isHexColor(activeObject.stroke)
+            ? activeObject.stroke
+            : isRgbColor(activeObject.stroke)
+            ? rgbToHex(activeObject.stroke)
+            : '#000000';
+        });
+      } else {
+        setBorderStyle('none');
+        setBorderWidth(0);
+        setBorderColor('#000000');
+      }
       if (activeObject.type === 'rectangle') {
         setBorderRadius(activeObject.rx);
       }
     } else {
-      setShapeType('');
       setFillColor('#000000');
       setBorderColor('#000000');
       setBorderWidth(1);
@@ -108,41 +189,17 @@ const ShapePanel = ({ editor, saveCanvas }) => {
 
   useEffect(() => {
     updateShapeFromActiveObject();
-  }, [editor?.canvas.getActiveObject()]);
+  }, [activeObject]);
 
   const addShape = (shapeType: string) => {
     let shape;
     switch (shapeType) {
       case 'rectangle':
-        shape = new fabric.Rect({
-          top: editor?.canvas.getHeight() / 2,
-          left: editor?.canvas.getWidth() / 2,
-          width: 100,
-          height: 100,
-          fill: fillColor,
-          stroke: borderColor,
-          rx: borderRadius,
-          ry: borderRadius,
-        });
+        editor.addRectangle();
         break;
       case 'circle':
-        shape = new fabric.Circle({
-          top: editor?.canvas.getHeight() / 2,
-          left: editor?.canvas.getWidth() / 2,
-          radius: 50,
-          fill: fillColor,
-          stroke: borderColor,
-        });
+        editor.addCircle();
         break;
-      case 'triangle':
-        shape = new fabric.Triangle({
-          top: editor?.canvas.getHeight() / 2,
-          left: editor?.canvas.getWidth() / 2,
-          width: 100,
-          height: 100,
-          fill: fillColor,
-          stroke: borderColor,
-        });
       case 'line':
         shape = new fabric.Line([50, 100, 200, 100], {
           top: editor?.canvas.getHeight() / 2,
@@ -154,9 +211,10 @@ const ShapePanel = ({ editor, saveCanvas }) => {
       default:
         return;
     }
-    setShapeType(shapeType);
-    editor?.canvas.add(shape);
-    editor?.canvas.renderAll();
+    if (shape) {
+      editor?.canvas.add(shape);
+      editor?.canvas.renderAll();
+    }
     saveCanvas();
   };
 
@@ -165,14 +223,12 @@ const ShapePanel = ({ editor, saveCanvas }) => {
       <Heading as="h1" size="lg" mb="5">
         Shape
       </Heading>
-      {isShapeSelected() ? (
+      {isShapeSelected ? (
         <>
-          {shapeType !== 'line' && (
-            <Box mb="3">
-              <Text>Fill Color</Text>
-              <ColorPicker color={fillColor} onChange={handleFillColorChange} />
-            </Box>
-          )}
+          <Box mb="3">
+            <Text>Fill Color</Text>
+            <ColorPicker color={fillColor} onChange={handleFillColorChange} />
+          </Box>
           <Box mb="3">
             <Text>Border Style</Text>
             <Select
@@ -183,7 +239,7 @@ const ShapePanel = ({ editor, saveCanvas }) => {
               <option value="none">None</option>
             </Select>
           </Box>
-          {borderStyle !== 'none' && (
+          {borderStyle === 'none' ? null : (
             <>
               <Box mb="3">
                 <Text>Border Color</Text>
@@ -208,25 +264,22 @@ const ShapePanel = ({ editor, saveCanvas }) => {
               </Flex>
             </>
           )}
-          {shapeType === 'rectangle' && (
-            <Box mb="3">
-              <Text>Border Radius</Text>
-              <Slider
-                min={0}
-                max={50}
-                value={borderRadius}
-                onChange={handleBorderRadiusChange}
-              >
-                <SliderTrack>
-                  <SliderFilledTrack />
-                </SliderTrack>
-                <SliderThumb />
-              </Slider>
-            </Box>
-          )}
+          <Box mb="3">
+            <Text>Border Radius</Text>
+            <Slider
+              min={0}
+              max={50}
+              value={borderRadius}
+              onChange={handleBorderRadiusChange}
+            >
+              <SliderTrack>
+                <SliderFilledTrack />
+              </SliderTrack>
+              <SliderThumb />
+            </Slider>
+          </Box>
           <DeleteButton
             onClick={() => {
-              const activeObject = editor?.canvas.getActiveObject();
               if (activeObject) {
                 editor?.canvas.remove(activeObject);
                 editor?.canvas.renderAll();
@@ -239,18 +292,81 @@ const ShapePanel = ({ editor, saveCanvas }) => {
         </>
       ) : (
         <>
-          <Text>Select a Shape to Add</Text>
-          <Select value={shapeType} onChange={(e) => addShape(e.target.value)}>
-            <option value="">Shape</option>
-            <option value="rectangle">Rectangle</option>
-            <option value="circle">Circle</option>
-            <option value="triangle">Triangle</option>
-            <option value="line">Line</option>
-          </Select>
+          <Heading fontSize={'mg'} mb="3">
+            Select a Shape to Add
+          </Heading>
+          <SecondaryButton
+            as="div"
+            textAlign={'center'}
+            cursor={'pointer'}
+            width="full"
+            mb="3"
+          >
+            <label htmlFor="image-upload" style={{ width: '100%' }}>
+              Upload SVG
+              <input
+                type="file"
+                id="image-upload"
+                accept=".svg"
+                style={{ display: 'none' }}
+                onChange={uploadSVG}
+              />
+            </label>
+          </SecondaryButton>
+          <Box
+            display={'grid'}
+            gridTemplateColumns={'repeat(auto-fit, minmax(75px, 1fr))'}
+            gap="3"
+            mt="4"
+          >
+            {svgList.map((svg, i) => (
+              <ShapeItem key={i} onClick={() => loadSVG(`/assets/${svg}`)}>
+                <img src={`/assets/${svg}`} alt={i} />
+              </ShapeItem>
+            ))}
+            <ShapeItem onClick={() => addShape('rectangle')}>
+              <RectangleSVG fill={fillColor} />
+            </ShapeItem>
+            <ShapeItem onClick={() => addShape('line')}>
+              <LineSVG fill={fillColor} />
+            </ShapeItem>
+            <ShapeItem onClick={() => addShape('circle')}>
+              <CircleSVG fill={fillColor} />
+            </ShapeItem>
+            <ShapeItem onClick={() => addShape('line')}>
+              <StarSVG fill={fillColor} />
+            </ShapeItem>
+          </Box>
         </>
       )}
     </div>
   );
 };
+
+function ShapeItem({
+  children,
+  onClick,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+}) {
+  return (
+    <Box
+      as="button"
+      display={'grid'}
+      placeContent={'center'}
+      borderRadius={'md'}
+      border="1px"
+      borderColor="gray.300"
+      _hover={{
+        borderColor: 'gray.800',
+      }}
+      p="2"
+      onClick={onClick}
+    >
+      {children}
+    </Box>
+  );
+}
 
 export default ShapePanel;

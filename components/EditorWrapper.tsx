@@ -3,6 +3,8 @@ import { useSnapshot } from 'valtio';
 import Editor from './Editor';
 import NavPanel from './NavPanel';
 import { useFabricJSEditor } from 'fabricjs-react';
+import FontFaceObserver from 'fontfaceobserver';
+import { fabric } from 'fabric';
 import {
   IoAdd,
   IoCopy,
@@ -27,35 +29,115 @@ const tabs = [
     name: 'Background',
     icon: IoScanSharp,
     children: BackgroundPanel,
+    key: 'b',
   },
   {
     name: 'Text',
     icon: IoText,
     children: TextPanel,
+    key: 't',
   },
   {
     name: 'Image',
     icon: IoImage,
     children: ImagePanel,
+    key: 'i',
   },
   {
     name: 'Shape',
     icon: IoStar,
     children: ShapePanel,
+    key: 's',
   },
 ];
 
-export default function EditorWrapper() {
+export default function EditorWrapper({ template }: { template: string }) {
   const [tabIndex, setTabIndex] = React.useState(0);
-  const currentRender = React.useRef(0);
+  const [editorReady, setEditorReady] = React.useState(false);
   const { editor, onReady } = useFabricJSEditor();
   const activeTab = tabs[tabIndex];
+  const canvasContainerRef = React.useRef<HTMLDivElement>(null);
   const snap = useSnapshot(state);
   const { activeIndex, editorState } = snap;
 
   React.useEffect(() => {
+    if (editor && editor.canvas && !editorReady) {
+      setEditorReady(true);
+    }
+  }, [editor]);
+
+  React.useEffect(() => {
+    const handleContainerClick = (e: any) => {
+      if (e.target instanceof HTMLCanvasElement) return;
+      editor?.canvas.discardActiveObject().renderAll();
+    };
+
+    const containerElement = canvasContainerRef.current;
+    containerElement?.addEventListener('click', handleContainerClick);
+
+    // Remove event listener on component unmount
+    return () => {
+      containerElement?.removeEventListener('click', handleContainerClick);
+    };
+  }, [editor]);
+
+  React.useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const elements = ['INPUT', 'TEXTAREA'];
+      if (elements.includes((event.target as HTMLElement).tagName)) {
+        return;
+      }
+      const activeObject = editor?.canvas.getActiveObject();
+      if (
+        activeObject &&
+        activeObject.type === 'textbox' &&
+        (activeObject as fabric.Textbox)?.isEditing
+      ) {
+        return;
+      }
+      switch (event.key) {
+        case 'b':
+          setTabIndex(0);
+          break;
+        case 't':
+          setTabIndex(1);
+          break;
+        case 'i':
+          setTabIndex(2);
+          break;
+        case 's':
+          setTabIndex(3);
+          break;
+        case 'Backspace':
+          editor?.deleteSelected();
+          break;
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    // cleanup function
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [editor]);
+
+  React.useEffect(() => {
     if (editor) {
-      const handler = () => saveCanvasState();
+      const handler = (e: fabric.IEvent<MouseEvent>) => {
+        const activeObject = editor?.canvas.getActiveObject();
+        if (activeObject instanceof fabric.Image) {
+          setTabIndex(2);
+        } else if (activeObject instanceof fabric.Text) {
+          setTabIndex(1);
+        } else if (activeObject instanceof fabric.Object) {
+          setTabIndex(3);
+        }
+        saveCanvasState();
+      };
+
       editor.canvas.on('object:modified', handler);
       editor.canvas.on('object:added', handler);
       editor.canvas.on('object:removed', handler);
@@ -79,22 +161,59 @@ export default function EditorWrapper() {
     let isMounted = true;
 
     if (isMounted) {
-      const json = editorState[activeIndex].json;
+      const json = editorState[activeIndex]?.json;
       loadJSON(json);
     }
 
     return () => {
       isMounted = false;
     };
-  }, [activeIndex]);
+  }, [activeIndex, editorReady]);
 
-  const loadJSON = (JSON: object | null) => {
+  const loadJSON = async (JSON: object | null) => {
     if (editor && editor.canvas) {
-      currentRender.current += 1;
-      if (!JSON) {
-        editor.canvas.clear();
+      if (JSON) {
+        // Extract all unique font families from the JSON
+        const fontFamilies = [
+          ...new Set(JSON.objects.map((obj) => obj.fontFamily).filter(Boolean)),
+        ];
+
+        // Load all the fonts
+        try {
+          await Promise.all(
+            fontFamilies.map(async (font) => {
+              const fontUrl = `https://fonts.googleapis.com/css?family=${encodeURIComponent(
+                font
+              )}`;
+
+              // Add the link element to load the font.
+              const linkElement = document.createElement('link');
+              linkElement.href = fontUrl;
+              linkElement.rel = 'stylesheet';
+              document.head.appendChild(linkElement);
+
+              // Then wait for the font to load.
+              const observer = new FontFaceObserver(font);
+              await observer.load();
+            })
+          );
+
+          // Fonts have been loaded, now load the canvas
+          editor.canvas.loadFromJSON(JSON, function () {
+            editor.canvas.getObjects().forEach((obj) => {
+              if (obj.type === 'line') {
+                obj.set({ padding: 10 });
+                console.log(obj);
+              }
+            });
+            editor.canvas.renderAll();
+          });
+        } catch (error) {
+          console.error('Failed to load fonts:', error);
+        }
       } else {
-        editor.canvas.loadFromJSON(JSON, () => null);
+        editor.canvas.clear();
+        editor.canvas.renderAll();
       }
     }
   };
@@ -117,8 +236,9 @@ export default function EditorWrapper() {
   }
 
   return (
-    <>
+    <Box w="100vw" h="100vh" display={'flex'} flexDirection={'row'}>
       <NavPanel
+        editor={editor}
         tabs={tabs}
         tabIndex={tabIndex}
         setTabIndex={(num) => setTabIndex(num)}
@@ -126,7 +246,18 @@ export default function EditorWrapper() {
       <ControlPanel>
         <activeTab.children editor={editor} saveCanvas={saveCanvasState} />
       </ControlPanel>
-      <Flex py="5" grow="1" height={'100%'} justifyContent={'center'}>
+      <Flex
+        py="5"
+        grow="1"
+        height={'100%'}
+        justifyContent={'center'}
+        ref={canvasContainerRef}
+        overflowY="scroll"
+        bgImage={`url('/assets/bubbles.svg')`}
+        bgRepeat="repeat"
+        bgSize="50px 50px"
+        bgBlendMode="multiply"
+      >
         <Flex flexDir={'column'}>
           <Flex display={'inline-flex'} justifyContent={'flex-end'}>
             <Tooltip label="Delete" aria-label="Delete">
@@ -213,6 +344,6 @@ export default function EditorWrapper() {
           </Flex>
         </Flex>
       </Flex>
-    </>
+    </Box>
   );
 }

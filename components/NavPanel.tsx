@@ -2,25 +2,21 @@ import { state } from '@/utils/editorState';
 import { Box, Flex, Tooltip } from '@chakra-ui/react';
 import { FabricJSEditor } from 'fabricjs-react';
 import { IconType } from 'react-icons';
-import {
-  IoArrowDown,
-  IoImage,
-  IoScanSharp,
-  IoStar,
-  IoText,
-} from 'react-icons/io5';
-import { useSnapshot } from 'valtio';
+import { IoArrowDown } from 'react-icons/io5';
 
 export default function NavPanel({
   tabIndex,
   setTabIndex,
   tabs,
+  editor,
 }: {
   tabIndex: number;
+  editor: FabricJSEditor | undefined;
   setTabIndex: (index: number) => void;
   tabs: {
     name: string;
     icon: IconType;
+    key: string;
     children: ({
       editor,
       saveCanvas,
@@ -30,27 +26,33 @@ export default function NavPanel({
     }) => React.JSX.Element;
   }[];
 }) {
-  const snap = useSnapshot(state);
   return (
     <Flex
-      borderRadius={'md'}
       height={'100%'}
       flexDir={'column'}
       gap="10px"
       py="5"
       px="3"
-      backgroundColor={'gray.100'}
+      className="gray-bg"
     >
       {tabs.map((tab, index) => (
-        <Tooltip label={tab.name} key={tab.name} placement="right">
+        <Tooltip
+          label={`${tab.name} (${tab.key})`}
+          key={tab.name}
+          placement="right"
+          sx={{
+            fontFamily: 'system-ui',
+          }}
+        >
           <Box
             as="button"
             p="3"
             borderRadius={'md'}
-            bgColor={tabIndex === index ? 'white' : 'gray.100'}
+            bgColor={tabIndex === index ? 'white' : 'transparent'}
+            textColor={'gray.800'}
             boxShadow={tabIndex === index ? 'lg' : 'none'}
             _hover={{
-              bgColor: 'white',
+              bgColor: tabIndex === index ? 'white' : 'gray.200',
             }}
             onClick={() => setTabIndex(index)}
             display={'flex'}
@@ -60,7 +62,13 @@ export default function NavPanel({
           </Box>
         </Tooltip>
       ))}
-      <Tooltip label={'Download'} placement="right">
+      <Tooltip
+        label={'Download'}
+        sx={{
+          fontFamily: 'system-ui',
+        }}
+        placement="right"
+      >
         <Box
           as="button"
           p="3"
@@ -72,10 +80,34 @@ export default function NavPanel({
             bgColor: '#005ce6',
           }}
           onClick={() => {
-            localStorage.setItem(
-              'editorState',
-              JSON.stringify(state.editorState)
-            );
+            // Generate data URL
+            const dataURL = editor?.canvas.toDataURL({
+              format: 'png',
+              quality: 0.9, // Quality from 0 (low) to 1 (high)
+            });
+
+            // Create a link element
+            const link = document.createElement('a');
+            if (!dataURL) return;
+            link.href = dataURL;
+
+            // Set the download attribute to automatically download the image
+            // when the link is clicked
+            link.download = 'my-canvas.png';
+
+            // Append the link to the body
+            document.body.appendChild(link);
+
+            // Programmatically click the link to start the download
+            link.click();
+
+            // Remove the link from the body
+            document.body.removeChild(link);
+
+            // localStorage.setItem(
+            //   'editorState',
+            //   JSON.stringify(state.editorState)
+            // );
           }}
           display={'flex'}
           gap="5px"

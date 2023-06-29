@@ -1,8 +1,8 @@
 import { FabricJSEditor } from 'fabricjs-react';
-import SecondaryButton from './ui/SecondaryButton';
+import SecondaryButton from './ui/PrimaryButton';
 import { Box, Flex, Heading, Select, Text } from '@chakra-ui/react';
 import { ColorPicker } from './ui/ColorPicker';
-import React from 'react';
+import React, { useEffect } from 'react';
 import * as Toggle from '@radix-ui/react-toggle';
 import { fabric } from 'fabric';
 import { AiOutlineBold, AiOutlineItalic } from 'react-icons/ai';
@@ -27,6 +27,7 @@ const FONTS = [
   'Pacifico',
   'Playfair Display',
   'Bitter',
+  'DM Sans',
 ];
 
 export default function TextPanel({
@@ -65,13 +66,16 @@ export default function TextPanel({
   };
 
   const onAddText = () => {
-    const text = new fabric.IText('Hello, World!', { left: 10, top: 10 });
-    editor?.canvas.add(text);
+    const object = new fabric.Textbox('Hello world');
+    editor?.canvas.add(object);
+    editor?.canvas.setActiveObject(object);
+    saveCanvas();
   };
 
   const isTextSelected = React.useMemo(() => {
     if (editor && editor.canvas) {
       const activeObject = editor.canvas.getActiveObject();
+      console.log(activeObject);
       return activeObject instanceof fabric.Text;
     }
     return false;
@@ -88,16 +92,24 @@ export default function TextPanel({
   //   }
   // }, [selectedFont, editor]);
 
+  useEffect(() => {
+    editor?.canvas.on('object:modified', function (e) {
+      let activeObject = e.target;
+      if (!activeObject) return;
+    });
+  }, []);
+
   React.useEffect(() => {
     if (editor && editor.canvas) {
       const activeObject = editor.canvas.getActiveObject();
-      if (activeObject instanceof fabric.IText) {
-        const currentFont = activeObject.get('fontFamily');
-        const currentColor = activeObject.get('fill');
-        const currentSize = activeObject.get('fontSize');
-        const currentWeight = activeObject.get('fontWeight');
-        const currentStyle = activeObject.get('fontStyle');
-        const currentBgColor = activeObject.get('textBackgroundColor');
+      console.log(activeObject);
+      if (activeObject && activeObject instanceof fabric.Text) {
+        const currentFont = activeObject.fontFamily;
+        const currentColor = activeObject.fill;
+        const currentSize = activeObject.fontSize;
+        const currentWeight = activeObject.fontWeight;
+        const currentStyle = activeObject.fontStyle;
+        const currentBgColor = activeObject.textBackgroundColor;
 
         setTextProps({
           ...textProps,
@@ -125,7 +137,7 @@ export default function TextPanel({
     setTextProps((prevProps) => ({ ...prevProps, ...newProps }));
     if (editor && editor.canvas) {
       const activeObject = editor.canvas.getActiveObject();
-      if (activeObject instanceof fabric.IText) {
+      if (activeObject && activeObject instanceof fabric.Text) {
         const updatedProps = { ...newProps };
         if (updatedProps.color) {
           updatedProps.fill = updatedProps.color;
@@ -156,14 +168,13 @@ export default function TextPanel({
           try {
             await observer.load();
             // when font is loaded, use it.
-            activeObject.set('fontFamily', font);
+            activeObject.fontFamily = font;
             editor.canvas.renderAll();
           } catch (error) {
             console.error('Failed to load font:', error);
             return;
           }
         }
-        console.log(updatedProps);
         activeObject.set(updatedProps);
         editor.canvas.renderAll();
         saveCanvas();

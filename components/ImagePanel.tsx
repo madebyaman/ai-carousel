@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FabricJSEditor } from 'fabricjs-react';
-import SecondaryButton from './ui/SecondaryButton';
+import SecondaryButton from './ui/PrimaryButton';
 import {
   Box,
   Flex,
@@ -16,8 +15,15 @@ import { ColorPicker } from './ui/ColorPicker';
 import { fabric } from 'fabric';
 import DeleteButton from './ui/DeleteButton';
 import TertiaryButton from './ui/TertiaryButton';
+import { FabricJSEditor } from 'fabricjs-react';
 
-const ImagePanel = ({ editor, saveCanvas }) => {
+const ImagePanel = ({
+  editor,
+  saveCanvas,
+}: {
+  editor: FabricJSEditor | null | undefined;
+  saveCanvas: () => void;
+}) => {
   const [borderColor, setBorderColor] = useState('#000000');
   const [borderWidth, setBorderWidth] = useState(0);
   const [imageFilters, setImageFilters] = useState<string>('none');
@@ -31,21 +37,25 @@ const ImagePanel = ({ editor, saveCanvas }) => {
       setBorderWidth(value);
     }
   };
-  const url =
-    'https://www.dropbox.com/s/t00p7co53dp5zv1/undraw_data_processing_yrrv.png?raw=1';
+  const url = '/templates/time.png';
 
   const uploadImage = (e: any) => {
+    // const file = e.target.files[0];
+    // const url = URL.createObjectURL(file);
+    // if (!file) return;
+
     // const file = e.target.files[0];
     // if (file) {
     // const url = URL.createObjectURL(file);
     fabric.Image.fromURL(url, function (img) {
       const maxWidth = 500; // Set this to the maximum width you want
-      if (img?.width > maxWidth) {
+      if (img.width && img.width > maxWidth) {
         img.scaleToWidth(maxWidth);
       }
       editor?.canvas.add(img);
       saveCanvas();
     });
+    // });
     // }
   };
 

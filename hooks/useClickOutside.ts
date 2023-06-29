@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 
-// Improved version of https://usehooks.com/useOnClickOutside/
 const useClickOutside = (ref: any, handler: (e: any) => void) => {
   useEffect(() => {
     let startedInside = false;
