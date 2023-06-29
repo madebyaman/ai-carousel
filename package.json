@@ -21,7 +21,6 @@
     "@types/node": "20.3.1",
     "@types/react": "18.2.14",
     "@types/react-dom": "18.2.6",
-    "canvas": "2.8.0",
     "eslint": "8.43.0",
     "eslint-config-next": "13.4.7",
     "eventsource-parser": "^1.0.0",
@@ -29,18 +28,14 @@
     "fabricjs-react": "^1.2.0",
     "fontfaceobserver": "^2.3.0",
     "framer-motion": "^10.12.17",
-    "jsdom": "19.0.0",
     "jspdf": "^2.5.1",
     "next": "13.4.7",
-    "openai": "^3.3.0",
     "react": "18.2.0",
-    "react-beautiful-dnd": "^13.1.1",
     "react-colorful": "^5.6.1",
     "react-dom": "18.2.0",
     "react-icons": "^4.10.1",
     "typescript": "5.1.3",
-    "valtio": "^1.10.6",
-    "webfontloader": "^1.6.28"
+    "valtio": "^1.10.6"
   },
   "devDependencies": {
     "@types/fontfaceobserver": "^2.1.0",
