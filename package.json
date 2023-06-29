@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "vercel-build": "yum install gcc-c++ cairo-devel pango-devel libjpeg-turbo-devel giflib-devel"
   },
   "dependencies": {
     "@chakra-ui/next-js": "^2.1.4",
@@ -20,6 +21,7 @@
     "@types/node": "20.3.1",
     "@types/react": "18.2.14",
     "@types/react-dom": "18.2.6",
+    "canvas": "2.8.0",
     "eslint": "8.43.0",
     "eslint-config-next": "13.4.7",
     "eventsource-parser": "^1.0.0",
@@ -27,6 +29,7 @@
     "fabricjs-react": "^1.2.0",
     "fontfaceobserver": "^2.3.0",
     "framer-motion": "^10.12.17",
+    "jsdom": "19.0.0",
     "jspdf": "^2.5.1",
     "next": "13.4.7",
     "openai": "^3.3.0",
