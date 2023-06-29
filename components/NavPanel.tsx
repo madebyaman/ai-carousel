@@ -1,11 +1,17 @@
 import { state } from '@/utils/editorState';
 import { fabric } from 'fabric';
 import jsPDF from 'jspdf';
-import { Box, Flex, Tooltip } from '@chakra-ui/react';
+import { Box, Flex, IconButton, Tooltip } from '@chakra-ui/react';
 import { FabricJSEditor } from 'fabricjs-react';
 import { IconType } from 'react-icons';
-import { IoArrowDown } from 'react-icons/io5';
+import {
+  IoArrowBack,
+  IoArrowDown,
+  IoArrowForward,
+  IoTrashBin,
+} from 'react-icons/io5';
 import { useSnapshot } from 'valtio';
+import React from 'react';
 
 export default function NavPanel({
   tabIndex,
@@ -31,8 +37,10 @@ export default function NavPanel({
 }) {
   const snap = useSnapshot(state);
   const editorState = snap.editorState;
+  const [loading, setLoading] = React.useState(false);
 
   async function exportPDF() {
+    setLoading(true);
     const scaleFactor = 250 / 96; // Reduced DPI from 300 to 150 for smaller file size
 
     const canvasSize = 512; // 512 x 512
@@ -86,7 +94,10 @@ export default function NavPanel({
 
     // Save the PDF
     pdf.save('download.pdf');
+    setLoading(false);
   }
+
+  const activeObject = editor?.canvas.getActiveObject();
 
   return (
     <Flex
@@ -125,19 +136,78 @@ export default function NavPanel({
         </Tooltip>
       ))}
       <Tooltip
+        label={'Delete layer'}
+        sx={{
+          fontFamily: 'system-ui',
+        }}
+        placement="right"
+      >
+        <IconButton
+          aria-label="Delete layer"
+          icon={<IoTrashBin />}
+          bgColor={'transparent'}
+          onClick={() => {
+            editor?.deleteSelected();
+          }}
+          cursor={activeObject ? 'pointer' : 'not-allowed'}
+          opacity={activeObject ? 1 : 0.5}
+          disabled={!activeObject}
+        />
+      </Tooltip>
+      <Tooltip
+        label={'Send layer to back'}
+        sx={{
+          fontFamily: 'system-ui',
+        }}
+        placement="right"
+      >
+        <IconButton
+          aria-label="send to back"
+          icon={<IoArrowBack />}
+          bgColor={'transparent'}
+          onClick={() => {
+            activeObject?.sendToBack();
+          }}
+          cursor={activeObject ? 'pointer' : 'not-allowed'}
+          opacity={activeObject ? 1 : 0.5}
+          disabled={!activeObject}
+        />
+      </Tooltip>
+      <Tooltip
+        label={'Bring layer to front'}
+        sx={{
+          fontFamily: 'system-ui',
+        }}
+        placement="right"
+      >
+        <IconButton
+          aria-label="bring forward"
+          icon={<IoArrowForward />}
+          onClick={() => {
+            activeObject?.bringForward();
+          }}
+          bgColor={'transparent'}
+          cursor={activeObject ? 'pointer' : 'not-allowed'}
+          opacity={activeObject ? 1 : 0.5}
+          disabled={!activeObject}
+        />
+      </Tooltip>
+      <Tooltip
         label={'Download'}
         sx={{
           fontFamily: 'system-ui',
         }}
         placement="right"
       >
-        <Box
-          as="button"
+        <IconButton
+          aria-label="Download"
           p="3"
           borderRadius={'md'}
           bgColor={'#0066ff'}
           textColor={'white'}
+          outline={'3px solid rgba(0, 102, 255, 0.2)'}
           boxShadow={'none'}
+          isLoading={loading}
           _hover={{
             bgColor: '#005ce6',
           }}
@@ -166,35 +236,10 @@ export default function NavPanel({
             //   JSON.stringify(state.editorState)
             // );
           }}
+          icon={<IoArrowDown />}
           display={'flex'}
           gap="5px"
-        >
-          <IoArrowDown />
-        </Box>
-      </Tooltip>
-      <Tooltip label={'Load'} placement="right">
-        <Box
-          as="button"
-          p="3"
-          borderRadius={'md'}
-          bgColor={'gray.500'}
-          textColor={'white'}
-          boxShadow={'none'}
-          _hover={{
-            bgColor: '#005ce6',
-          }}
-          onClick={() => {
-            const json = localStorage.getItem('editorState');
-            if (json) {
-              state.editorState = JSON.parse(json);
-              state.activeIndex = 0;
-            }
-          }}
-          display={'flex'}
-          gap="5px"
-        >
-          <IoArrowDown />
-        </Box>
+        ></IconButton>
       </Tooltip>
     </Flex>
   );

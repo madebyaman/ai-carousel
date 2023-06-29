@@ -8,13 +8,11 @@ import { fabric } from 'fabric';
 import {
   IoAdd,
   IoCopy,
-  IoCopyOutline,
   IoImage,
   IoScanSharp,
   IoStar,
   IoText,
-  IoTrash,
-  IoTrashOutline,
+  IoTrashBin,
 } from 'react-icons/io5';
 import React from 'react';
 import ControlPanel from './ControlPanel';
@@ -64,6 +62,7 @@ export default function EditorWrapper({ template }: { template: string }) {
     if (editor && editor.canvas && !editorReady) {
       setEditorReady(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor]);
 
   React.useEffect(() => {
@@ -118,7 +117,6 @@ export default function EditorWrapper({ template }: { template: string }) {
 
     window.addEventListener('keydown', handleKeyDown);
 
-    // cleanup function
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
@@ -142,7 +140,7 @@ export default function EditorWrapper({ template }: { template: string }) {
         if (!e.target) return;
         //@ts-ignore
         e.target.set('originalFill', e.target.fill);
-        e.target.set('fill', 'yellow');
+        e.target.set('fill', 'red');
         editor?.canvas.renderAll();
       };
       const mouseOutHandler = (e: fabric.IEvent<MouseEvent>) => {
@@ -159,8 +157,6 @@ export default function EditorWrapper({ template }: { template: string }) {
       editor.canvas.on('object:removed', handler);
       editor.canvas.on('selection:created', handler);
       editor.canvas.on('selection:updated', handler);
-      editor.canvas.on('mouse:over', mouseOverHandler);
-      editor.canvas.on('mouse:out', mouseOutHandler);
 
       return () => {
         // clean up the event handlers when the component is unmounted or the editor changes
@@ -170,11 +166,10 @@ export default function EditorWrapper({ template }: { template: string }) {
           'object:removed': handler,
           'selection:created': handler,
           'selection:updated': handler,
-          'mouse:over': mouseOverHandler,
-          'mouse:out': mouseOutHandler,
         });
       };
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor]);
 
   React.useEffect(() => {
@@ -188,49 +183,50 @@ export default function EditorWrapper({ template }: { template: string }) {
     return () => {
       isMounted = false;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeIndex, editorReady]);
 
   const loadJSON = async (JSON: object | null) => {
     if (editor && editor.canvas) {
       if (JSON) {
         // Extract all unique font families from the JSON
-        const fontFamilies = [
-          ...new Set(JSON.objects.map((obj) => obj.fontFamily).filter(Boolean)),
-        ];
+        if ('objects' in JSON && Array.isArray(JSON.objects)) {
+          try {
+            const fontFamilies = [
+              ...new Set(
+                JSON.objects?.map((obj) => obj.fontFamily).filter(Boolean)
+              ),
+            ];
+            await Promise.all(
+              fontFamilies.map(async (font) => {
+                const fontUrl = `https://fonts.googleapis.com/css?family=${encodeURIComponent(
+                  font
+                )}`;
 
-        // Load all the fonts
-        try {
-          await Promise.all(
-            fontFamilies.map(async (font) => {
-              const fontUrl = `https://fonts.googleapis.com/css?family=${encodeURIComponent(
-                font
-              )}`;
+                // Add the link element to load the font.
+                const linkElement = document.createElement('link');
+                linkElement.href = fontUrl;
+                linkElement.rel = 'stylesheet';
+                document.head.appendChild(linkElement);
 
-              // Add the link element to load the font.
-              const linkElement = document.createElement('link');
-              linkElement.href = fontUrl;
-              linkElement.rel = 'stylesheet';
-              document.head.appendChild(linkElement);
-
-              // Then wait for the font to load.
-              const observer = new FontFaceObserver(font);
-              await observer.load();
-            })
-          );
-
-          // Fonts have been loaded, now load the canvas
-          editor.canvas.loadFromJSON(JSON, function () {
-            editor.canvas.getObjects().forEach((obj) => {
-              if (obj.type === 'line') {
-                obj.set({ padding: 10 });
-                console.log(obj);
-              }
-            });
-            editor.canvas.renderAll();
-          });
-        } catch (error) {
-          console.error('Failed to load fonts:', error);
+                // Then wait for the font to load.
+                const observer = new FontFaceObserver(font);
+                await observer.load();
+              })
+            );
+          } catch (error) {
+            console.error('Failed to load fonts:', error);
+          }
         }
+        editor.canvas.loadFromJSON(JSON, function () {
+          editor.canvas.getObjects().forEach((obj) => {
+            if (obj.type === 'line') {
+              obj.set({ padding: 10 });
+              console.log(obj);
+            }
+          });
+          editor.canvas.renderAll();
+        });
       } else {
         editor.canvas.clear();
         editor.canvas.renderAll();
@@ -280,10 +276,10 @@ export default function EditorWrapper({ template }: { template: string }) {
       >
         <Flex flexDir={'column'}>
           <Flex display={'inline-flex'} justifyContent={'flex-end'}>
-            <Tooltip label="Delete" aria-label="Delete">
+            <Tooltip label="Delete slide" aria-label="Delete">
               <IconButton
                 bgColor={'transparent'}
-                icon={<IoTrashOutline />}
+                icon={<IoTrashBin />}
                 aria-label="Delete"
                 onClick={() => {
                   if (editorState.length <= 1) {
@@ -300,10 +296,10 @@ export default function EditorWrapper({ template }: { template: string }) {
                 }}
               />
             </Tooltip>
-            <Tooltip label="Copy" aria-label="Copy">
+            <Tooltip label="Copy slide" aria-label="Copy">
               <IconButton
                 bgColor={'transparent'}
-                icon={<IoCopyOutline />}
+                icon={<IoCopy />}
                 aria-label="Copy"
                 onClick={() => {
                   state.editorState = [
@@ -326,7 +322,9 @@ export default function EditorWrapper({ template }: { template: string }) {
                 as="button"
                 key={index}
                 border={'2px'}
-                borderColor={activeIndex === index ? 'blue.300' : 'gray.200'}
+                borderColor={
+                  activeIndex === index ? 'rgb(0, 102, 255, 0.7)' : 'gray.200'
+                }
                 display={'grid'}
                 placeItems={'center'}
                 width="40px"

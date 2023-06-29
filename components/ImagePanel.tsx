@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import SecondaryButton from './ui/PrimaryButton';
+import SecondaryButton from './ui/SecondaryButton';
 import {
   Box,
   Flex,
@@ -13,8 +13,6 @@ import {
 } from '@chakra-ui/react';
 import { ColorPicker } from './ui/ColorPicker';
 import { fabric } from 'fabric';
-import DeleteButton from './ui/DeleteButton';
-import TertiaryButton from './ui/TertiaryButton';
 import { FabricJSEditor } from 'fabricjs-react';
 
 const ImagePanel = ({
@@ -37,26 +35,20 @@ const ImagePanel = ({
       setBorderWidth(value);
     }
   };
-  const url = '/templates/time.png';
 
   const uploadImage = (e: any) => {
-    // const file = e.target.files[0];
-    // const url = URL.createObjectURL(file);
-    // if (!file) return;
-
-    // const file = e.target.files[0];
-    // if (file) {
-    // const url = URL.createObjectURL(file);
-    fabric.Image.fromURL(url, function (img) {
-      const maxWidth = 500; // Set this to the maximum width you want
-      if (img.width && img.width > maxWidth) {
-        img.scaleToWidth(maxWidth);
-      }
-      editor?.canvas.add(img);
-      saveCanvas();
-    });
-    // });
-    // }
+    const file = e.target.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      fabric.Image.fromURL(url, function (img) {
+        const maxWidth = 500;
+        if (img.width && img.width > maxWidth) {
+          img.scaleToWidth(maxWidth);
+        }
+        editor?.canvas.add(img);
+        saveCanvas();
+      });
+    }
   };
 
   const handleBorderColorChange = (value: string) => {
@@ -95,12 +87,14 @@ const ImagePanel = ({
         break;
       default:
     }
-    activeObject.filters = filters;
-    activeObject.applyFilters();
+    if (activeObject && activeObject instanceof fabric.Image) {
+      activeObject.filters = filters;
+      activeObject.applyFilters();
 
-    editor?.canvas.renderAll();
-    saveCanvas();
-    setImageFilters(filterType);
+      editor?.canvas.renderAll();
+      saveCanvas();
+      setImageFilters(filterType);
+    }
   };
 
   const updateFiltersFromImage = () => {
@@ -111,18 +105,23 @@ const ImagePanel = ({
       Array.isArray(activeObject.filters) &&
       activeObject.filters.length > 0
     ) {
-      const currentFilter = activeObject.filters[0].type;
+      const currentFilter =
+        'type' in activeObject.filters[0]
+          ? activeObject.filters[0].type
+          : 'none';
       let filterType = 'none';
 
       switch (currentFilter) {
         case 'Brightness':
           filterType =
+            // @ts-ignore
             activeObject.filters[0].brightness > -0.2
               ? 'low-contrast'
               : 'high-contrast';
           break;
         case 'Blur':
           filterType =
+            // @ts-ignore
             activeObject.filters[0].blur <= 0.2 ? 'light-blur' : 'heavy-blur';
           break;
         case 'Grayscale':
@@ -171,6 +170,7 @@ const ImagePanel = ({
       editor?.canvas.off('selection:created', handleObjectSelected);
       editor?.canvas.off('selection:updated', handleObjectSelected);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor?.canvas]); // The effect depends on editor.canvas
 
   const isImageSelected =
@@ -209,7 +209,7 @@ const ImagePanel = ({
               value={imageFilters}
               onChange={(e) => onChangeImageFilters(e.target.value)}
             >
-              <option value="none">None</option>
+              <option value="none">Select filter</option>
               <option value="low-contrast">Low Contrast</option>
               <option value="high-contrast">High Contrast</option>
               <option value="light-blur">Light Blur</option>
@@ -217,40 +217,6 @@ const ImagePanel = ({
               <option value="grayscale">Grayscale</option>
             </Select>
           </Box>
-          <TertiaryButton
-            onClick={() => {
-              const activeObject = editor?.canvas.getActiveObject();
-              if (activeObject) {
-                activeObject.bringToFront();
-                editor?.canvas.renderAll();
-              }
-            }}
-          >
-            Bring to Front
-          </TertiaryButton>
-          <TertiaryButton
-            onClick={() => {
-              const activeObject = editor?.canvas.getActiveObject();
-              if (activeObject) {
-                activeObject.sendToBack();
-                editor?.canvas.renderAll();
-              }
-            }}
-          >
-            Send to Back
-          </TertiaryButton>
-          <DeleteButton
-            onClick={() => {
-              const activeObject = editor?.canvas.getActiveObject();
-              if (activeObject) {
-                editor?.canvas.remove(activeObject);
-                editor?.canvas.renderAll();
-                saveCanvas();
-              }
-            }}
-          >
-            Delete
-          </DeleteButton>
         </>
       ) : (
         <SecondaryButton

@@ -1,10 +1,8 @@
 import React, { ForwardRefRenderFunction } from 'react';
 import { Button, ButtonProps } from '@chakra-ui/react';
-import { IoTrash } from 'react-icons/io5';
+import { IoTrashBin } from 'react-icons/io5';
 
-interface DeleteButtonProps extends ButtonProps {
-  // You can add other props here if needed.
-}
+interface DeleteButtonProps extends ButtonProps {}
 
 const DeleteButton: ForwardRefRenderFunction<
   HTMLButtonElement,
@@ -12,11 +10,11 @@ const DeleteButton: ForwardRefRenderFunction<
 > = (props, ref) => {
   return (
     <Button
-      bgColor="white"
+      bgColor="rgba(255, 255, 255, 0.8)"
       textColor={'red.700'}
       _hover={{ bgColor: 'red.200' }}
       ref={ref}
-      leftIcon={<IoTrash />}
+      leftIcon={<IoTrashBin />}
       {...props}
     />
   );

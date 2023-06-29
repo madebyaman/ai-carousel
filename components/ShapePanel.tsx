@@ -15,11 +15,11 @@ import { ColorPicker } from './ui/ColorPicker';
 import DeleteButton from './ui/DeleteButton';
 import { RectangleSVG } from './ui/svgs/RectangleSVG';
 import { CircleSVG } from './ui/svgs/Circle';
-import { StarSVG } from './ui/svgs/Star';
 import { LineSVG } from './ui/svgs/LineSVG';
 import { isHexColor, isRgbColor, rgbToHex } from '@/utils/color';
-import SecondaryButton from './ui/PrimaryButton';
+import SecondaryButton from './ui/SecondaryButton';
 import { FabricJSEditor } from 'fabricjs-react';
+import Image from 'next/image';
 
 const svgList = [
   'underline.svg',
@@ -46,11 +46,14 @@ const ShapePanel = ({
   const activeObject = editor?.canvas.getActiveObject();
 
   const isShapeSelected = useMemo(() => {
+    if (activeObject == null) return false;
     return (
-      (activeObject instanceof fabric.Object ||
-        activeObject instanceof fabric.Path) &&
-      activeObject.type !== 'image' &&
-      activeObject.type !== 'textbox'
+      (activeObject instanceof fabric.Object &&
+        activeObject.type !== 'image' &&
+        activeObject.type !== 'textbox') ||
+      (activeObject instanceof fabric.Group &&
+        activeObject.type !== 'image' &&
+        activeObject.type !== 'textbox')
     );
   }, [activeObject]);
 
@@ -123,6 +126,7 @@ const ShapePanel = ({
   const handleBorderRadiusChange = (value: number) => {
     setBorderRadius(value);
     if (isShapeSelected) {
+      // @ts-ignore
       activeObject?.set({ rx: value, ry: value });
       console.log(activeObject);
       editor?.canvas.renderAll();
@@ -163,7 +167,7 @@ const ShapePanel = ({
       }
       if (activeObject.stroke) {
         setBorderStyle('solid');
-        setBorderWidth(activeObject.strokeWidth);
+        setBorderWidth(activeObject.strokeWidth || 0);
         setBorderColor(() => {
           return isHexColor(activeObject.stroke)
             ? activeObject.stroke
@@ -177,6 +181,7 @@ const ShapePanel = ({
         setBorderColor('#000000');
       }
       if (activeObject.type === 'rectangle') {
+        // @ts-ignore
         setBorderRadius(activeObject.rx);
       }
     } else {
@@ -190,10 +195,12 @@ const ShapePanel = ({
 
   useEffect(() => {
     updateShapeFromActiveObject();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeObject]);
 
   const addShape = (shapeType: string) => {
     let shape;
+    if (!editor) return;
     switch (shapeType) {
       case 'rectangle':
         editor.addRectangle();
@@ -279,17 +286,6 @@ const ShapePanel = ({
               <SliderThumb />
             </Slider>
           </Box>
-          <DeleteButton
-            onClick={() => {
-              if (activeObject) {
-                editor?.canvas.remove(activeObject);
-                editor?.canvas.renderAll();
-                saveCanvas();
-              }
-            }}
-          >
-            Delete
-          </DeleteButton>
         </>
       ) : (
         <>
@@ -322,7 +318,7 @@ const ShapePanel = ({
           >
             {svgList.map((svg, i) => (
               <ShapeItem key={i} onClick={() => loadSVG(`/assets/${svg}`)}>
-                <img src={`/assets/${svg}`} alt={i} />
+                <Image width={50} height={50} src={`/assets/${svg}`} alt="" />
               </ShapeItem>
             ))}
             <ShapeItem onClick={() => addShape('rectangle')}>

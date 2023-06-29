@@ -1,4 +1,12 @@
-import { Box, Button, Container, Heading } from '@chakra-ui/react';
+import { AnimatePresence, MotionConfig, motion } from 'framer-motion';
+import {
+  Box,
+  Button,
+  Checkbox,
+  Container,
+  Heading,
+  Textarea,
+} from '@chakra-ui/react';
 import Logo from './Logo';
 import Link from 'next/link';
 import { templates } from './Templates';
@@ -26,51 +34,110 @@ export default function SelectTemplate({
   setTemplate: (template: string) => void;
 }) {
   const [loading, setLoading] = React.useState(false);
+  const [ai, setAI] = React.useState(false);
+  const [prompt, setPrompt] = React.useState('');
   const [selectedTemplate, setSelectedTemplate] = React.useState<null | number>(
     null
   );
 
-  function generateText(templates: TemplateItem[]) {
-    let textTemplate = '';
+  async function handleGenerate() {
+    if (selectedTemplate === null) return;
+    setLoading(true);
+    if (ai) {
+      const templateArrays = generateTemplateArrays(
+        templates[selectedTemplate].json as any
+      );
+      const textTemplate = generateTextTemplate(templateArrays);
+      const aiResult = await generateAIContent(textTemplate);
+      const result = aiResult.choices[0].message.content;
+      const parsedResult = parseAIResponse(result);
+      replaceTemplateText(
+        templates[selectedTemplate].json as any,
+        templateArrays,
+        parsedResult
+      );
+    }
+    setLoading(false);
+    state.editorState = templates[selectedTemplate].json;
+    setTemplate('2');
+  }
 
-    for (let i = 0; i < templates.length; i++) {
-      const json = templates[i].json;
+  function replaceTemplateText(
+    template: TemplateItem[],
+    templateArray: string[][],
+    result: string[][]
+  ) {
+    let currentSlideIndex = 0;
+    let currentObjectIndex = 0;
 
-      if ('objects' in json && Array.isArray(json.objects)) {
-        textTemplate += `Slide ${i + 1}: `;
-        const slideContent: string[] = [];
-
-        for (let j = 0; j < json.objects.length; j++) {
-          if (json.objects[j].type === 'textbox' && json.objects[j].aiPrompt) {
-            slideContent.push(json.objects[j].text);
+    for (let i = 0; i < template.length; i++) {
+      const obj = template[i].json;
+      for (let j = 0; j < obj.objects.length; j++) {
+        const object = obj.objects[j];
+        if (object.type === 'textbox' && object.aiPrompt) {
+          // check if the current text matches with the template text
+          if (
+            object.text === templateArray[currentSlideIndex][currentObjectIndex]
+          ) {
+            // replace the text with the AI generated text
+            object.text = result[currentSlideIndex][currentObjectIndex];
+          }
+          // move to the next object in the slide
+          currentObjectIndex++;
+          if (currentObjectIndex >= templateArray[currentSlideIndex].length) {
+            // move to the next slide and reset the object index
+            currentSlideIndex++;
+            currentObjectIndex = 0;
           }
         }
-
-        textTemplate += slideContent.join(' SlideNext ');
-        textTemplate += ' EndSlide, ';
       }
+    }
+  }
+
+  function generateTemplateArrays(template: TemplateItem[]) {
+    const arrays: string[][] = [];
+    for (let i = 0; i < template.length; i++) {
+      let currentSlide: string[] = [];
+      const obj = template[i].json;
+      for (let j = 0; j < obj.objects.length; j++) {
+        const object = template[i].json.objects[j];
+        if (object.type === 'textbox' && object.aiPrompt) {
+          currentSlide.push(object.text);
+        } else {
+        }
+      }
+      arrays.push(currentSlide);
+    }
+    return arrays;
+  }
+
+  function generateTextTemplate(templateArrays: string[][]) {
+    let textTemplate = '';
+
+    for (let i = 0; i < templateArrays.length; i++) {
+      textTemplate += `Slide ${i + 1}: `;
+      textTemplate += templateArrays[i].join(' SlideNext ');
+      textTemplate += ' EndSlide, ';
     }
 
     return textTemplate.slice(0, -2); // Remove the trailing comma and space
   }
 
-  async function generateTemplate(template: string) {
-    setLoading(true);
+  async function generateAIContent(textTemplate: string) {
     const response = await fetch('/api/generate', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        template,
-        prompt: 'get rid of procrastination',
+        template: textTemplate,
+        prompt,
       }),
     });
     if (!response.ok) {
       throw new Error(response.statusText);
     }
     const data = await response.json();
-    setLoading(false);
     return data;
   }
 
@@ -90,64 +157,128 @@ export default function SelectTemplate({
   }
 
   return (
-    <Box w="full">
-      <Container maxWidth={'6xl'}>
-        <Box
-          as="header"
-          py={5}
-          display={'flex'}
-          justifyContent={'center'}
-          alignItems={'center'}
-        >
-          <Link href="/">
-            <Logo
-              style={{
-                width: '150px',
-              }}
-            />
-          </Link>
-        </Box>
-      </Container>
-      <Container mt="12" maxWidth={'6xl'}>
-        <Heading textAlign={'center'} as="h1" size="xl">
-          Pick a template to get started
-        </Heading>
-        <Box
-          as="section"
-          py={10}
-          display={'flex'}
-          gap="5"
-          flexWrap={'wrap'}
-          justifyContent={'center'}
-        >
-          {templates.map((template, i) => (
-            <Carousel
-              key={i}
-              images={template.slides}
-              onClick={() => setSelectedTemplate(i)}
-              borderColor={i === selectedTemplate ? 'blue.500' : 'gray.200'}
-              // json={template.json}
-            />
-          ))}
-          <PrimaryButton
-            disabled={selectedTemplate === null}
-            opacity={selectedTemplate === null ? '0.5' : '1'}
-            pointerEvents={selectedTemplate === null ? 'none' : 'auto'}
-            onClick={async () => {
-              if (selectedTemplate === null) return;
-              const text = generateText(
-                templates[selectedTemplate].json as any
-              );
-              const aiResult = await generateTemplate(text);
-              const result = aiResult.choices[0].message.content;
-              const parsedResult = parseAIResponse(result);
-              console.log(parsedResult);
-            }}
+    <MotionConfig
+      transition={{ duration: 0.2, type: 'ease', ease: 'easeInOut' }}
+    >
+      <Box w="full">
+        <Container maxWidth={'6xl'}>
+          <Box
+            as="header"
+            py={5}
+            display={'flex'}
+            justifyContent={'center'}
+            alignItems={'center'}
           >
-            Start Designing
-          </PrimaryButton>
-        </Box>
-      </Container>
-    </Box>
+            <Link href="/">
+              <Logo
+                style={{
+                  width: '150px',
+                }}
+              />
+            </Link>
+          </Box>
+        </Container>
+        <Container mt="12" maxWidth={'6xl'}>
+          <Heading as="h1" size="xl">
+            Pick a template to get started
+          </Heading>
+          <Box
+            as="section"
+            mt="5"
+            mb="7"
+            display={'flex'}
+            gap="5"
+            flexWrap={'wrap'}
+            justifyContent={'flex-start'}
+          >
+            {templates.map((template, i) => (
+              <Carousel
+                key={i}
+                images={template.slides}
+                onClick={() => setSelectedTemplate(i)}
+                borderColor={i === selectedTemplate ? 'blue.500' : 'gray.200'}
+              />
+            ))}
+          </Box>
+          <Box
+            textAlign={'center'}
+            mb="10"
+            display={'flex'}
+            flexDirection={'column'}
+            gap="3"
+            alignItems={'start'}
+          >
+            <Checkbox
+              checked={ai}
+              onChange={(e) => setAI(e.target.checked)}
+              display={'flex'}
+              alignItems={'center'}
+              gap="1"
+            >
+              <Box
+                as="span"
+                display="inline-flex"
+                gap="1px"
+                alignItems={'center'}
+              >
+                <svg
+                  viewBox="0 0 14 17"
+                  // fill="currentColor"
+                  fill={'rgb(149, 64, 212)'}
+                  style={{
+                    width: '16px',
+                    height: '16px',
+                    display: 'block',
+                    flexShrink: '0',
+                    backfaceVisibility: 'hidden',
+                    marginRight: '4px',
+                  }}
+                >
+                  <path d="M6.417 4.074c.096 0 .157-.061.178-.157.191-1.114.184-1.128 1.36-1.36.096-.02.157-.076.157-.178 0-.096-.061-.157-.157-.171-1.176-.219-1.155-.24-1.36-1.36-.02-.096-.082-.164-.178-.164-.096 0-.157.068-.178.164-.205 1.107-.177 1.12-1.36 1.36-.096.014-.157.075-.157.17 0 .103.061.158.164.179 1.169.225 1.162.232 1.353 1.36.02.096.082.157.178.157zM3.095 8.921c.15 0 .266-.11.287-.253.232-1.798.28-1.812 2.167-2.16a.276.276 0 00.246-.28c0-.15-.11-.267-.253-.28-1.873-.26-1.928-.315-2.16-2.154-.02-.15-.13-.26-.287-.26-.15 0-.26.11-.28.267-.22 1.798-.294 1.798-2.168 2.146-.15.02-.252.13-.252.28 0 .158.102.26.28.28 1.846.288 1.92.35 2.14 2.147.02.158.13.267.28.267zm4.82 7.54c.211 0 .375-.15.41-.376.498-3.67 1.01-4.252 4.655-4.662a.416.416 0 00.39-.41c0-.22-.165-.383-.39-.417-3.61-.431-4.123-.957-4.656-4.662-.04-.22-.198-.37-.41-.37-.212 0-.376.15-.41.37-.5 3.677-1.012 4.258-4.655 4.662-.226.027-.39.198-.39.417 0 .212.164.383.39.41 3.602.492 4.101.964 4.655 4.662.04.226.198.376.41.376z"></path>
+                </svg>
+                Use AI to generate content
+              </Box>
+            </Checkbox>
+            <motion.div
+              animate={{ height: ai ? 'auto' : '0' }}
+              style={{
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'flex-start',
+                margin: '0',
+              }}
+            >
+              <AnimatePresence mode="wait">
+                {ai && (
+                  <Textarea
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    key="form"
+                    as={motion.textarea}
+                    exit={{ opacity: 0 }}
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    maxW="2xl"
+                    mb="3"
+                    placeholder="Awesome! which topic or title would you like to generate content for?"
+                  />
+                )}
+              </AnimatePresence>
+            </motion.div>
+            <PrimaryButton
+              isLoading={loading}
+              disabled={selectedTemplate === null || loading}
+              opacity={selectedTemplate === null ? '0.5' : '1'}
+              pointerEvents={selectedTemplate === null ? 'none' : 'auto'}
+              onClick={async () => {
+                handleGenerate();
+              }}
+            >
+              Start Designing
+            </PrimaryButton>
+          </Box>
+        </Container>
+      </Box>
+    </MotionConfig>
   );
 }

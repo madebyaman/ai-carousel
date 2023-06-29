@@ -58,11 +58,11 @@ const handler = async (req: Request): Promise<Response> => {
 };
 
 function generatePrompt(prompt: string, template: string[]) {
-  return `Generate a LinkedIn carousel content for this prompt: ${prompt}. It should follow this example template: ${template}. Each slide should start with 'Slide {number}' and end with 'EndSlide'. If there are multiple text elements in a slide, separate them with 'SlideNext'. Number of slides should be same.
+  return `Generate a LinkedIn carousel content for this prompt: ${prompt}. It should follow this example template: ${template}. Each slide should start with 'Slide {number}' and end with 'EndSlide'. If there are multiple text elements in a slide, separate them with 'SlideNext'. Number of slides should be same. And text length should be similar to the template.
 
   For example:
   prompt: "3 ways to build an email list"
-  template: "Slide 1: Title Next EndSlide, Slide 2: Slide 1 text SlideNext EndSlide, Slide 3: Slide 2 text SlideNext EndSlide, Slide 4: text SlideNext EndSlide, Slide 5: ending text SlideNext EndSlide"
+  template: "Slide 1: Title SlideNext EndSlide, Slide 2:  Slide 1 text SlideNext EndSlide, Slide 3: Slide 2 text SlideNext EndSlide, Slide 4: text SlideNext EndSlide, Slide 5: ending text SlideNext EndSlide"
   `
 
 }

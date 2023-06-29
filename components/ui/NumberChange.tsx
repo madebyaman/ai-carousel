@@ -34,9 +34,9 @@ const NumberChanger = ({
       border="1px"
       display={'inline-flex'}
       borderColor={'gray.800'}
-      borderRadius={'sm'}
+      borderRadius={'md'}
     >
-      <Button onClick={handleIncrement} p="1">
+      <Button onClick={handleIncrement} bgColor={'transparent'} p="1">
         <IoAdd />
       </Button>
       <Input
@@ -51,7 +51,7 @@ const NumberChanger = ({
         type="number"
         w="55px"
       />
-      <Button onClick={handleDecrement} p="1">
+      <Button onClick={handleDecrement} bgColor={'transparent'} p="1">
         <IoRemove />
       </Button>
     </Flex>

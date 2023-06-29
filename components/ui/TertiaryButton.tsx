@@ -11,9 +11,17 @@ const TertiaryButton: ForwardRefRenderFunction<
 > = (props, ref) => {
   return (
     <Button
-      bgColor="gray.200"
+      bgColor="transparent"
+      borderWidth={1}
+      borderColor="gray.300"
+      fontSize={'sm'}
+      px="3"
+      py="1"
       textColor={'gray.800'}
-      _hover={{ bgColor: 'gray.300' }}
+      borderRadius={'sm'}
+      boxShadow={'sm'}
+      fontWeight={'normal'}
+      _hover={{ borderColor: 'gray.500' }}
       ref={ref}
       {...props}
     />

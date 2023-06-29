@@ -1,9 +1,7 @@
 import React, { ForwardRefRenderFunction } from 'react';
 import { Button, ButtonProps } from '@chakra-ui/react';
 
-interface PrimaryButtonProps extends ButtonProps {
-  // You can add other props here if needed.
-}
+interface PrimaryButtonProps extends ButtonProps {}
 
 const PrimaryButton: ForwardRefRenderFunction<
   HTMLButtonElement,

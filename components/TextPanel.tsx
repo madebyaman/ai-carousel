@@ -1,5 +1,5 @@
 import { FabricJSEditor } from 'fabricjs-react';
-import SecondaryButton from './ui/PrimaryButton';
+import SecondaryButton from './ui/SecondaryButton';
 import { Box, Flex, Heading, Select, Text } from '@chakra-ui/react';
 import { ColorPicker } from './ui/ColorPicker';
 import React, { useEffect } from 'react';
@@ -10,6 +10,8 @@ import { isHexColor, isRgbColor, rgbToHex } from '@/utils/color';
 import FontFaceObserver from 'fontfaceobserver';
 import NumberChanger from './ui/NumberChange';
 import DeleteButton from './ui/DeleteButton';
+import TertiaryButton from './ui/TertiaryButton';
+import { IoTrashBin } from 'react-icons/io5';
 
 const FONTS = [
   'Inter',
@@ -133,7 +135,7 @@ export default function TextPanel({
   }, [editor]);
 
   // Update properties on user interaction
-  const updateTextProps = async (newProps) => {
+  const updateTextProps = async (newProps: any) => {
     setTextProps((prevProps) => ({ ...prevProps, ...newProps }));
     if (editor && editor.canvas) {
       const activeObject = editor.canvas.getActiveObject();
@@ -207,11 +209,11 @@ export default function TextPanel({
               }}
               __css={{
                 '&[data-state="on"]': {
-                  bgColor: 'blue.50',
+                  bgColor: 'white',
                   boxShadow: 'lg',
                 },
                 '&[data-state="on"]:hover': {
-                  bgColor: 'blue.50',
+                  bgColor: 'white',
                   boxShadow: 'lg',
                 },
               }}
@@ -239,11 +241,11 @@ export default function TextPanel({
               }}
               __css={{
                 '&[data-state="on"]': {
-                  bgColor: 'blue.50',
+                  bgColor: 'white',
                   boxShadow: 'lg',
                 },
                 '&[data-state="on"]:hover': {
-                  bgColor: 'blue.50',
+                  bgColor: 'white',
                   boxShadow: 'lg',
                 },
               }}
@@ -290,18 +292,6 @@ export default function TextPanel({
               updateTextProps({ textBackgroundColor: newColor })
             }
           />
-          <DeleteButton
-            onClick={() => {
-              const activeObject = editor?.canvas.getActiveObject();
-              if (activeObject) {
-                editor?.canvas.remove(activeObject);
-                editor?.canvas.renderAll();
-                saveCanvas();
-              }
-            }}
-          >
-            Delete
-          </DeleteButton>
         </>
       ) : (
         <SecondaryButton width={'full'} mb="3" onClick={onAddText}>
