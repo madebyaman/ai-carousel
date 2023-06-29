@@ -29,6 +29,8 @@ export const templates = [
       '/template-img/2/1.png',
       '/template-img/2/2.png',
       '/template-img/2/3.png',
+      '/template-img/2/4.png',
+      '/template-img/2/5.png',
     ],
     json: template2,
   },

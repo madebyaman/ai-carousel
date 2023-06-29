@@ -27,6 +27,7 @@ const svgList = [
   'two-lines.svg',
   'heart.svg',
   'chat.svg',
+  'star.svg',
 ];
 
 const ShapePanel = ({
@@ -332,9 +333,6 @@ const ShapePanel = ({
             </ShapeItem>
             <ShapeItem onClick={() => addShape('circle')}>
               <CircleSVG fill={fillColor} />
-            </ShapeItem>
-            <ShapeItem onClick={() => addShape('line')}>
-              <StarSVG fill={fillColor} />
             </ShapeItem>
           </Box>
         </>

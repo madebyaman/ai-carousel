@@ -138,11 +138,29 @@ export default function EditorWrapper({ template }: { template: string }) {
         saveCanvasState();
       };
 
+      const mouseOverHandler = (e: fabric.IEvent<MouseEvent>) => {
+        if (!e.target) return;
+        //@ts-ignore
+        e.target.set('originalFill', e.target.fill);
+        e.target.set('fill', 'yellow');
+        editor?.canvas.renderAll();
+      };
+      const mouseOutHandler = (e: fabric.IEvent<MouseEvent>) => {
+        //@ts-ignore
+        if (e.target && e.target.originalFill) {
+          //@ts-ignore
+          e.target.set('fill', e.target.originalFill);
+          editor.canvas.renderAll();
+        }
+      };
+
       editor.canvas.on('object:modified', handler);
       editor.canvas.on('object:added', handler);
       editor.canvas.on('object:removed', handler);
       editor.canvas.on('selection:created', handler);
       editor.canvas.on('selection:updated', handler);
+      editor.canvas.on('mouse:over', mouseOverHandler);
+      editor.canvas.on('mouse:out', mouseOutHandler);
 
       return () => {
         // clean up the event handlers when the component is unmounted or the editor changes
@@ -152,6 +170,8 @@ export default function EditorWrapper({ template }: { template: string }) {
           'object:removed': handler,
           'selection:created': handler,
           'selection:updated': handler,
+          'mouse:over': mouseOverHandler,
+          'mouse:out': mouseOutHandler,
         });
       };
     }
