@@ -181,7 +181,7 @@
                   "skewY": 0,
                   "cropX": 0,
                   "cropY": 0,
-                  "src": "http://localhost:3000/templates/inbox.png",
+                  "src": "https://ornate-fenglisu-117ad6.netlify.app//templates/inbox.png",
                   "crossOrigin": null,
                   "filters": []
               }
@@ -374,7 +374,7 @@
                   "skewY": 0,
                   "cropX": 0,
                   "cropY": 0,
-                  "src": "http://localhost:3000/templates/inbox-delete-bg.png",
+                  "src": "https://ornate-fenglisu-117ad6.netlify.app//templates/inbox-delete-bg.png",
                   "crossOrigin": null,
                   "filters": []
               },
@@ -619,7 +619,7 @@
                   "skewY": 0,
                   "cropX": 0,
                   "cropY": 0,
-                  "src": "http://localhost:3000/templates/inbox-action.png",
+                  "src": "https://ornate-fenglisu-117ad6.netlify.app//templates/inbox-action.png",
                   "crossOrigin": null,
                   "filters": []
               },
@@ -917,7 +917,7 @@
                   "skewY": 0,
                   "cropX": 0,
                   "cropY": 0,
-                  "src": "http://localhost:3000/templates/time.png",
+                  "src": "https://ornate-fenglisu-117ad6.netlify.app//templates/time.png",
                   "crossOrigin": null,
                   "filters": []
               }
