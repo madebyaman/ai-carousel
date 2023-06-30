@@ -77,7 +77,6 @@ export default function TextPanel({
   const isTextSelected = React.useMemo(() => {
     if (editor && editor.canvas) {
       const activeObject = editor.canvas.getActiveObject();
-      console.log(activeObject);
       return activeObject instanceof fabric.Text;
     }
     return false;
@@ -104,7 +103,6 @@ export default function TextPanel({
   React.useEffect(() => {
     if (editor && editor.canvas) {
       const activeObject = editor.canvas.getActiveObject();
-      console.log(activeObject);
       if (activeObject && activeObject instanceof fabric.Text) {
         const currentFont = activeObject.fontFamily;
         const currentColor = activeObject.fill;

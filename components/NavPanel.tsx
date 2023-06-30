@@ -260,8 +260,8 @@ export default function NavPanel({
             bgColor: '#005ce6',
           }}
           onClick={async () => {
-            // await exportPDF();
-            downloadPNG();
+            await exportPDF();
+            // downloadPNG();
             // localStorage.setItem( 'editorState',
             //   JSON.stringify(state.editorState)
             // );

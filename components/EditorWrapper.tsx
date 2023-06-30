@@ -225,7 +225,6 @@ export default function EditorWrapper({ template }: { template: string }) {
           editor.canvas.getObjects().forEach((obj) => {
             if (obj.type === 'line') {
               obj.set({ padding: 10 });
-              console.log(obj);
             }
           });
           editor.canvas.renderAll();

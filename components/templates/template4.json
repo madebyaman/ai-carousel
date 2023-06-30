@@ -663,7 +663,7 @@
                   "skewY": 0,
                   "fontFamily": "Roboto",
                   "fontWeight": "bold",
-                  "fontSize": 60,
+                  "fontSize": 50,
                   "aiPrompt":true,
                   "text": "CONTACT FOR FITNESS PROGRAM",
                   "underline": false,
