@@ -8,10 +8,12 @@ import {
   IoArrowBack,
   IoArrowDown,
   IoArrowForward,
+  IoChevronBack,
   IoTrashBin,
 } from 'react-icons/io5';
 import { useSnapshot } from 'valtio';
 import React from 'react';
+import { useRouter } from 'next/router';
 
 export default function NavPanel({
   tabIndex,
@@ -119,6 +121,7 @@ export default function NavPanel({
   }
 
   const activeObject = editor?.canvas.getActiveObject();
+  const router = useRouter();
 
   return (
     <Flex
@@ -129,6 +132,30 @@ export default function NavPanel({
       px="3"
       className="gray-bg"
     >
+      <Tooltip
+        label={'Go back'}
+        sx={{
+          fontFamily: 'system-ui',
+        }}
+        placement="right"
+      >
+        <IconButton
+          aria-label="Go back"
+          icon={<IoChevronBack />}
+          bgColor={'transparent'}
+          onClick={() => {
+            state.editorState = [
+              {
+                json: null,
+                bgColor: '#ffffff',
+              },
+            ];
+            state.activeIndex = 0;
+            router.reload();
+          }}
+          cursor={'pointer'}
+        />
+      </Tooltip>
       {tabs.map((tab, index) => (
         <Tooltip
           label={`${tab.name} (${tab.key})`}

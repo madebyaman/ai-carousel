@@ -1,4 +1,4 @@
-import { Box, Flex, IconButton, Tooltip } from '@chakra-ui/react';
+import { Box, Flex, IconButton, Spinner, Tooltip } from '@chakra-ui/react';
 import { useSnapshot } from 'valtio';
 import Editor from './Editor';
 import NavPanel from './NavPanel';
@@ -21,6 +21,7 @@ import TextPanel from './TextPanel';
 import ImagePanel from './ImagePanel';
 import ShapePanel from './ShapePanel';
 import { state } from '@/utils/editorState';
+import { isLight } from '@/utils/color';
 
 const tabs = [
   {
@@ -52,6 +53,7 @@ const tabs = [
 export default function EditorWrapper({ template }: { template: string }) {
   const [tabIndex, setTabIndex] = React.useState(0);
   const [editorReady, setEditorReady] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
   const { editor, onReady } = useFabricJSEditor();
   const activeTab = tabs[tabIndex];
   const canvasContainerRef = React.useRef<HTMLDivElement>(null);
@@ -189,6 +191,7 @@ export default function EditorWrapper({ template }: { template: string }) {
   const loadJSON = async (JSON: object | null) => {
     if (editor && editor.canvas) {
       if (JSON) {
+        setLoading(true);
         // Extract all unique font families from the JSON
         if ('objects' in JSON && Array.isArray(JSON.objects)) {
           try {
@@ -226,6 +229,7 @@ export default function EditorWrapper({ template }: { template: string }) {
             }
           });
           editor.canvas.renderAll();
+          setLoading(false);
         });
       } else {
         editor.canvas.clear();
@@ -315,7 +319,20 @@ export default function EditorWrapper({ template }: { template: string }) {
               />
             </Tooltip>
           </Flex>
-          <Editor editor={editor} onReady={onReady} />
+          <Box position={'relative'}>
+            <Box
+              position={'absolute'}
+              inset={'0'}
+              display={loading ? 'flex' : 'none'}
+              alignItems={'center'}
+              justifyContent={'center'}
+              zIndex={10}
+              bgColor="rgba(0, 0, 0, 0.5)"
+            >
+              <Spinner color="white" />
+            </Box>
+            <Editor editor={editor} onReady={onReady} />
+          </Box>
           <Flex flexWrap={'wrap'} mt="4" gap="2" justifyContent={'center'}>
             {editorState.map((object, index) => (
               <Box

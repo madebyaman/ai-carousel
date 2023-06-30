@@ -1,7 +1,6 @@
 import { AnimatePresence, MotionConfig, motion } from 'framer-motion';
 import {
   Box,
-  Button,
   Checkbox,
   Text,
   Container,
@@ -15,8 +14,8 @@ import Carousel from './Carousel';
 import React from 'react';
 import PrimaryButton from './ui/PrimaryButton';
 import { state } from '@/utils/editorState';
-import template1 from '@/components/templates/template1.json';
 import { IoAdd } from 'react-icons/io5';
+import fabric from 'fabric';
 
 interface TemplateObject {
   type: string;
@@ -92,8 +91,7 @@ export default function SelectTemplate({
         if (object.type === 'textbox' && object.aiPrompt) {
           // check if the current ai prompt matches with the template ai prompt
           if (
-            object.aiPrompt ===
-            templateArray[currentSlideIndex][currentObjectIndex]
+            object.text === templateArray[currentSlideIndex][currentObjectIndex]
           ) {
             // replace the text with the AI generated text
             object.text = result[currentSlideIndex][currentObjectIndex];
@@ -118,7 +116,7 @@ export default function SelectTemplate({
       for (let j = 0; j < obj.objects.length; j++) {
         const object = template[i].json.objects[j];
         if (object.type === 'textbox' && object.aiPrompt) {
-          currentSlide.push(object.aiPrompt);
+          currentSlide.push(object.text);
         } else {
         }
       }

@@ -51,7 +51,7 @@ const handler = async (req: Request) => {
 };
 
 function generatePrompt(prompt: string, template: string) {
-  return `Create LinkedIn carousel content based on this topic: ${prompt}. Use this example template: ${template}. Start each slide with 'Slide {number}' and end with 'EndSlide'. If a slide has multiple text parts, divide them with 'SlideNext'. Keep the same number of slides as in the template. If a template slide has a title but no content, your output slide should also have no content. If a slide has content but no title, your output slide should have only content."
+  return `Create LinkedIn carousel content based on this topic: ${prompt}. Use this example template: ${template}. Start each slide with 'Slide {number}' and end with 'EndSlide'. If a slide has multiple text parts, divide them with 'SlideNext'. Keep the same number of slides as in the template. If a template slide has a title but no content, your output slide should also have no content. If a slide has content but no title, your output slide should have only content. Final slide will be Call to action."
   `
 }
 
