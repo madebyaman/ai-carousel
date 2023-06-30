@@ -1,6 +1,3 @@
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error("Missing env var from OpenAI");
-}
 
 export const config = {
   runtime: "edge",
@@ -16,40 +13,42 @@ const handler = async (req: Request) => {
   if (!prompt || !template) {
     return new Response("No prompt in the request", { status: 400 });
   }
-  return new Response("Hello", { status: 200 });
+  if (!process.env.OPENAI_API_KEY) {
+    return new Response("No prompt in the request", { status: 400 });
+  }
 
   // "Generate 2 Casual twitter biographies with no hashtags and clearly labeled "1." and "2.". nulln      Make sure each generated biography is less than 160 characters, has short sentences that are found in Twitter bios, and base them on this context: Frontend developer, aspiring indie hacker."
 
-  // const payload = {
-  //   model: 'gpt-3.5-turbo',
-  //   messages: [{ role: "user", content: generatePrompt(prompt, template) }],
-  //   temperature: 0.7,
-  //   max_tokens: 300,
-  //   top_p: 1.0,
-  //   frequency_penalty: 0,
-  //   presence_penalty: 0,
-  // }
+  const payload = {
+    model: 'gpt-3.5-turbo',
+    messages: [{ role: "user", content: generatePrompt(prompt, template) }],
+    temperature: 0.7,
+    max_tokens: 300,
+    top_p: 1.0,
+    frequency_penalty: 0,
+    presence_penalty: 0,
+  }
 
-  // try {
-  //   const completion = await fetch("https://api.openai.com/v1/chat/completions", {
-  //     headers: {
-  //       'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-  //       'Content-Type': 'application/json',
-  //     },
-  //     method: 'POST',
-  //     body: JSON.stringify(payload),
-  //   })
+  try {
+    const completion = await fetch("https://api.openai.com/v1/chat/completions", {
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
 
-  //   const data = completion.body;
-  //   return new Response(data, {
-  //     headers: {
-  //       'Content-Type': 'application/json;charset=UTF-8',
-  //     }
-  //   });
-  // } catch (e) {
-  //   console.log(e);
-  //   return new Response("Failed to build", { status: 500 });
-  // }
+    const data = completion.body;
+    return new Response(data, {
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8',
+      }
+    });
+  } catch (e) {
+    console.log(e);
+    return new Response("Failed to build", { status: 500 });
+  }
 };
 
 function generatePrompt(prompt: string, template: string[]) {
