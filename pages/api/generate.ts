@@ -1,6 +1,3 @@
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error("Missing env var from OpenAI");
-}
 
 export const config = {
   runtime: "edge",
@@ -11,6 +8,9 @@ const handler = async (req: Request) => {
     prompt?: string;
     template?: string[];
   };
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error("Missing env var from OpenAI");
+  }
 
 
   if (!prompt || !template) {
