@@ -216,7 +216,7 @@
                   "skewY": 0,
                   "cropX": 0,
                   "cropY": 0,
-                  "src": "http://localhost:3000/templates/alex.png",
+                  "src": "https://main.d3gv23ddl1qwsc.amplifyapp.com/templates/alex.png",
                   "crossOrigin": null,
                   "filters": []
               }
@@ -460,7 +460,7 @@
                   "skewY": 0,
                   "cropX": 0,
                   "cropY": 0,
-                  "src": "http://localhost:3000/templates/itay.png",
+                  "src": "https://main.d3gv23ddl1qwsc.amplifyapp.com/templates/itay.png",
                   "crossOrigin": null,
                   "filters": []
               }
@@ -703,7 +703,7 @@
                   "skewY": 0,
                   "cropX": 0,
                   "cropY": 0,
-                  "src": "http://localhost:3000/templates/itay.png",
+                  "src": "https://main.d3gv23ddl1qwsc.amplifyapp.com/templates/itay.png",
                   "crossOrigin": null,
                   "filters": []
               }
@@ -946,7 +946,7 @@
                   "skewY": 0,
                   "cropX": 0,
                   "cropY": 0,
-                  "src": "http://localhost:3000/templates/itay.png",
+                  "src": "https://main.d3gv23ddl1qwsc.amplifyapp.com/templates/itay.png",
                   "crossOrigin": null,
                   "filters": []
               }
@@ -1100,7 +1100,7 @@
                   "skewY": 0,
                   "cropX": 0,
                   "cropY": 0,
-                  "src": "http://localhost:3000/templates/alex.png",
+                  "src": "https://main.d3gv23ddl1qwsc.amplifyapp.com/templates/alex.png",
                   "crossOrigin": null,
                   "filters": []
               },
