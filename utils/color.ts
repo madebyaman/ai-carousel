@@ -1,5 +1,6 @@
-export function isRgbColor(color: string | any) {
+export function isRgbColor(color: string | any | undefined) {
   var rgbPattern = /^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/;
+  if (!color) return false;
   return rgbPattern.test(color);
 }
 

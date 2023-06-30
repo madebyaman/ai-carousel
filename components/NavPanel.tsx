@@ -97,6 +97,27 @@ export default function NavPanel({
     setLoading(false);
   }
 
+  function downloadPNG() {
+    // Generate data URL
+    const dataURL = editor?.canvas.toDataURL({
+      format: 'png',
+      quality: 0.9, // Quality from 0 (low) to 1 (high)
+    });
+    // Create a link element
+    const link = document.createElement('a');
+    if (!dataURL) return;
+    link.href = dataURL;
+    // Set the download attribute to automatically download the image
+    // when the link is clicked
+    link.download = 'my-canvas.png';
+    // Append the link to the body
+    document.body.appendChild(link);
+    // Programmatically click the link to start the download
+    link.click();
+    // Remove the link from the body
+    document.body.removeChild(link);
+  }
+
   const activeObject = editor?.canvas.getActiveObject();
 
   return (
@@ -212,29 +233,11 @@ export default function NavPanel({
             bgColor: '#005ce6',
           }}
           onClick={async () => {
-            await exportPDF();
-            // Generate data URL
-            // const dataURL = editor?.canvas.toDataURL({
-            //   format: 'png',
-            //   quality: 0.9, // Quality from 0 (low) to 1 (high)
-            // });
-            // // Create a link element
-            // const link = document.createElement('a');
-            // if (!dataURL) return;
-            // link.href = dataURL;
-            // // Set the download attribute to automatically download the image
-            // // when the link is clicked
-            // link.download = 'my-canvas.png';
-            // // Append the link to the body
-            // document.body.appendChild(link);
-            // // Programmatically click the link to start the download
-            // link.click();
-            // // Remove the link from the body
-            // document.body.removeChild(link);
-            // localStorage.setItem(
-            //   'editorState',
-            //   JSON.stringify(state.editorState)
-            // );
+            // await exportPDF();
+            localStorage.setItem(
+              'editorState',
+              JSON.stringify(state.editorState)
+            );
           }}
           icon={<IoArrowDown />}
           display={'flex'}

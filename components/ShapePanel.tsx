@@ -27,6 +27,10 @@ const svgList = [
   'heart.svg',
   'chat.svg',
   'star.svg',
+  'heart-1.svg',
+  'chat-1.svg',
+  'bookmark.svg',
+  'thumb-up.svg',
 ];
 
 const ShapePanel = ({

@@ -13,13 +13,13 @@ export default function BackgroundSVG() {
     >
       <defs>
         <linearGradient id=":Rkm:-fade" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="40%" stop-color="white"></stop>
-          <stop offset="100%" stop-color="black"></stop>
+          <stop offset="40%" stopColor="white"></stop>
+          <stop offset="100%" stopColor="black"></stop>
         </linearGradient>
         <linearGradient id=":Rkm:-gradient">
-          <stop offset="0%" stop-color="#4989E8"></stop>
-          <stop offset="50%" stop-color="#6159DA"></stop>
-          <stop offset="100%" stop-color="#FF54AD"></stop>
+          <stop offset="0%" stopColor="#4989E8"></stop>
+          <stop offset="50%" stopColor="#6159DA"></stop>
+          <stop offset="100%" stopColor="#FF54AD"></stop>
         </linearGradient>
         <mask id=":Rkm:-mask">
           <rect width="100%" height="100%" fill="url(#:Rkm:-pattern)"></rect>
