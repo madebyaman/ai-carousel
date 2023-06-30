@@ -6,7 +6,7 @@ export const config = {
 const handler = async (req: Request) => {
   const { prompt, template } = (await req.json()) as {
     prompt?: string;
-    template?: string[];
+    template?: string;
   };
   if (!process.env.OPENAI_API_KEY) {
     return new Response("No api key found", { status: 400 });
@@ -50,14 +50,9 @@ const handler = async (req: Request) => {
   }
 };
 
-function generatePrompt(prompt: string, template: string[]) {
-  return `Generate a LinkedIn carousel content for this prompt: ${prompt}. It should follow this example template: ${template}. Each slide should start with 'Slide {number}' and end with 'EndSlide'. If there are multiple text elements in a slide, separate them with 'SlideNext'. Keep same number of slides as the template with same number of text elements. Some slides may only have title and no content or vice-versa follow that structure.
-
-  For example:
-  prompt: "3 ways to build an email list"
-  template: "Slide 1: Title SlideNext EndSlide, Slide 2:  Slide 1 text SlideNext EndSlide, Slide 3: Slide 2 text SlideNext EndSlide, Slide 4: text SlideNext EndSlide, Slide 5: ending text SlideNext EndSlide"
+function generatePrompt(prompt: string, template: string) {
+  return `Create LinkedIn carousel content based on this topic: ${prompt}. Use this example template: ${template}. Start each slide with 'Slide {number}' and end with 'EndSlide'. If a slide has multiple text parts, divide them with 'SlideNext'. Keep the same number of slides as in the template. If a template slide has a title but no content, your output slide should also have no content. If a slide has content but no title, your output slide should have only content."
   `
-
 }
 
 export default handler;

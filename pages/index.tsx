@@ -2,6 +2,7 @@ import Carousel from '@/components/Carousel';
 import Logo from '@/components/Logo';
 import Templates from '@/components/Templates';
 import BackgroundSVG from '@/components/bg-svg';
+import { state } from '@/utils/editorState';
 import {
   Box,
   Button,
@@ -13,10 +14,11 @@ import {
   Image,
 } from '@chakra-ui/react';
 import { motion, isValidMotionProp } from 'framer-motion';
+import { init } from 'next/dist/compiled/@vercel/og/satori';
 import Head from 'next/head';
 import NextImage from 'next/image';
 import Link from 'next/link';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 const ChakraBox = chakra(motion.div, {
   shouldForwardProp: (prop) =>
@@ -51,6 +53,16 @@ export default function Home() {
     hidden: { opacity: 0, y: 10 },
     show: { opacity: 1, y: 0, transition: { type: 'spring' } },
   };
+
+  useEffect(() => {
+    state.editorState = [
+      {
+        json: null,
+        bgColor: '#ffffff',
+      },
+    ];
+    state.activeIndex = 0;
+  }, []);
 
   return (
     <>

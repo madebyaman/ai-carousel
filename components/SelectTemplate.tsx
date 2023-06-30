@@ -92,7 +92,8 @@ export default function SelectTemplate({
         if (object.type === 'textbox' && object.aiPrompt) {
           // check if the current ai prompt matches with the template ai prompt
           if (
-            object.text === templateArray[currentSlideIndex][currentObjectIndex]
+            object.aiPrompt ===
+            templateArray[currentSlideIndex][currentObjectIndex]
           ) {
             // replace the text with the AI generated text
             object.text = result[currentSlideIndex][currentObjectIndex];
@@ -117,7 +118,7 @@ export default function SelectTemplate({
       for (let j = 0; j < obj.objects.length; j++) {
         const object = template[i].json.objects[j];
         if (object.type === 'textbox' && object.aiPrompt) {
-          currentSlide.push(object.text);
+          currentSlide.push(object.aiPrompt);
         } else {
         }
       }
@@ -313,7 +314,6 @@ export default function SelectTemplate({
               </AnimatePresence>
             </motion.div>
             <PrimaryButton
-              ref={buttonRef}
               isLoading={loading}
               disabled={selectedTemplate === undefined || loading}
               opacity={selectedTemplate === undefined ? '0.5' : '1'}
