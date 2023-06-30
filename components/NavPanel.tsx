@@ -261,6 +261,7 @@ export default function NavPanel({
           }}
           onClick={async () => {
             await exportPDF();
+            return;
             // downloadPNG();
             // localStorage.setItem( 'editorState',
             //   JSON.stringify(state.editorState)
