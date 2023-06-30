@@ -9,7 +9,7 @@ const handler = async (req: Request) => {
     template?: string[];
   };
   if (!process.env.OPENAI_API_KEY) {
-    throw new Error("Missing env var from OpenAI");
+    return new Response("No api key found", { status: 400 });
   }
 
 
