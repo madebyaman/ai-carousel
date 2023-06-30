@@ -1,13 +1,11 @@
+import { NextApiRequest, NextApiResponse } from "next";
+
 if (!process.env.OPENAI_API_KEY) {
   throw new Error("Missing env var from OpenAI");
 }
 
-export const config = {
-  runtime: "edge",
-};
-
-const handler = async (req: Request): Promise<Response> => {
-  const { prompt, template } = (await req.json()) as {
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+  const { prompt, template } = req.body as {
     prompt?: string;
     template?: string[];
   };
@@ -16,7 +14,6 @@ const handler = async (req: Request): Promise<Response> => {
   if (!prompt || !template) {
     return new Response("No prompt in the request", { status: 400 });
   }
-  // "Generate 2 Casual twitter biographies with no hashtags and clearly labeled "1." and "2.". nulln      Make sure each generated biography is less than 160 characters, has short sentences that are found in Twitter bios, and base them on this context: Frontend developer, aspiring indie hacker."
 
   const payload = {
     model: 'gpt-3.5-turbo',
@@ -39,21 +36,10 @@ const handler = async (req: Request): Promise<Response> => {
     })
 
     const data = completion.body;
-    return new Response(data, {
-      headers: {
-        'Content-Type': 'application/json;charset=UTF-8',
-      }
-    });
+    return res.status(200).json(data)
   } catch (e) {
     console.log(e);
-    return new Response(
-      JSON.stringify(e, null, 2),
-      {
-        headers: {
-          'Content-Type': 'application/json;charset=UTF-8',
-        },
-      },
-    );
+    return res.status(500)
   }
 };
 
