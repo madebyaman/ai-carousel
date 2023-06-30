@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Checkbox,
+  Text,
   Container,
   Heading,
   Textarea,
@@ -15,6 +16,7 @@ import React from 'react';
 import PrimaryButton from './ui/PrimaryButton';
 import { state } from '@/utils/editorState';
 import template1 from '@/components/templates/template1.json';
+import { IoAdd } from 'react-icons/io5';
 
 interface TemplateObject {
   type: string;
@@ -36,12 +38,16 @@ export default function SelectTemplate({
   const [loading, setLoading] = React.useState(false);
   const [ai, setAI] = React.useState(false);
   const [prompt, setPrompt] = React.useState('');
-  const [selectedTemplate, setSelectedTemplate] = React.useState<null | number>(
-    null
-  );
+  const [selectedTemplate, setSelectedTemplate] = React.useState<
+    null | number
+  >();
 
   async function handleGenerate() {
-    if (selectedTemplate === null) return;
+    if (selectedTemplate === undefined) return;
+    if (selectedTemplate === null) {
+      setTemplate('2'); // pass any number to trigger editor
+      return;
+    }
     setLoading(true);
     if (ai) {
       const templateArrays = generateTemplateArrays(
@@ -75,7 +81,7 @@ export default function SelectTemplate({
       for (let j = 0; j < obj.objects.length; j++) {
         const object = obj.objects[j];
         if (object.type === 'textbox' && object.aiPrompt) {
-          // check if the current text matches with the template text
+          // check if the current ai prompt matches with the template ai prompt
           if (
             object.text === templateArray[currentSlideIndex][currentObjectIndex]
           ) {
@@ -199,6 +205,31 @@ export default function SelectTemplate({
                 borderColor={i === selectedTemplate ? 'blue.500' : 'gray.200'}
               />
             ))}
+            <Box
+              cursor={'pointer'}
+              onClick={() => setSelectedTemplate(null)}
+              borderRadius={'md'}
+              border="1px solid"
+              borderColor={selectedTemplate === null ? 'blue.500' : 'gray.200'}
+              bgColor={'transparent'}
+              alignItems={'center'}
+              p="3"
+            >
+              <Box
+                display={'flex'}
+                w="300px"
+                h="300px"
+                alignItems={'center'}
+                justifyContent={'center'}
+                flexDirection={'column'}
+                gap="3"
+              >
+                <IoAdd size="60" color="gray.400" />
+                <Text fontSize={'md'} textColor="gray.700">
+                  Start with blank canvas
+                </Text>
+              </Box>
+            </Box>
           </Box>
           <Box
             textAlign={'center'}
@@ -213,6 +244,7 @@ export default function SelectTemplate({
               onChange={(e) => setAI(e.target.checked)}
               display={'flex'}
               alignItems={'center'}
+              disabled={selectedTemplate === null}
               gap="1"
             >
               <Box
@@ -267,9 +299,9 @@ export default function SelectTemplate({
             </motion.div>
             <PrimaryButton
               isLoading={loading}
-              disabled={selectedTemplate === null || loading}
-              opacity={selectedTemplate === null ? '0.5' : '1'}
-              pointerEvents={selectedTemplate === null ? 'none' : 'auto'}
+              disabled={selectedTemplate === undefined || loading}
+              opacity={selectedTemplate === undefined ? '0.5' : '1'}
+              pointerEvents={selectedTemplate === undefined ? 'none' : 'auto'}
               onClick={async () => {
                 handleGenerate();
               }}

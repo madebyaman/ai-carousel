@@ -39,7 +39,8 @@ const ImagePanel = ({
   const uploadImage = (e: any) => {
     const file = e.target.files[0];
     if (file) {
-      const url = URL.createObjectURL(file);
+      // const url = URL.createObjectURL(file);
+      const url = '/templates/darshan-patel.png';
       fabric.Image.fromURL(url, function (img) {
         const maxWidth = 500;
         if (img.width && img.width > maxWidth) {

@@ -233,11 +233,12 @@ export default function NavPanel({
             bgColor: '#005ce6',
           }}
           onClick={async () => {
-            // await exportPDF();
-            localStorage.setItem(
-              'editorState',
-              JSON.stringify(state.editorState)
-            );
+            await exportPDF();
+            // downloadPNG();
+            // localStorage.setItem(
+            //   'editorState',
+            //   JSON.stringify(state.editorState)
+            // );
           }}
           icon={<IoArrowDown />}
           display={'flex'}

@@ -72,7 +72,7 @@
                   "fontFamily": "Open Sans",
                   "fontWeight": "bold",
                   "fontSize": 55,
-                  "aiPrompt": "Title",
+                  "aiPrompt": "First slide Title",
                   "text": "3 WAYS\nTO GROW YOUR AUDIENCE",
                   "underline": false,
                   "overline": false,
@@ -487,7 +487,7 @@
                   "skewY": 0,
                   "cropX": 0,
                   "cropY": 0,
-                  "src": "https://ornate-fenglisu-117ad6.netlify.app//templates/alex.png",
+                  "src": "https://slidelink.netlify.app//templates/alex.png",
                   "crossOrigin": null,
                   "filters": []
               }
@@ -678,7 +678,7 @@
                   "fontFamily": "Open Sans",
                   "fontWeight": "normal",
                   "fontSize": 27,
-                  "aiPrompt": "text",
+                  "aiPrompt": "second slide content only",
                   "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi nisi ante, hendrerit eu maximus mattis, tincidunt at arcu. Maecenas suscipit.",
                   "underline": false,
                   "overline": false,
@@ -731,7 +731,7 @@
                   "skewY": 0,
                   "cropX": 0,
                   "cropY": 0,
-                  "src": "https://ornate-fenglisu-117ad6.netlify.app//templates/itay.png",
+                  "src": "https://slidelink.netlify.app//templates/itay.png",
                   "crossOrigin": null,
                   "filters": []
               }
@@ -921,7 +921,7 @@
                   "fontFamily": "Open Sans",
                   "fontWeight": "normal",
                   "fontSize": 25,
-                  "aiPrompt": "text",
+                  "aiPrompt": "third slide content only",
                   "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi nisi ante, hendrerit eu maximus mattis, tincidunt at arcu. Maecenas suscipit.",
                   "underline": false,
                   "overline": false,
@@ -974,7 +974,7 @@
                   "skewY": 0,
                   "cropX": 0,
                   "cropY": 0,
-                  "src": "https://ornate-fenglisu-117ad6.netlify.app//templates/alex.png",
+                  "src": "https://slidelink.netlify.app//templates/alex.png",
                   "crossOrigin": null,
                   "filters": []
               }
@@ -1164,7 +1164,7 @@
                   "fontFamily": "Open Sans",
                   "fontWeight": "normal",
                   "fontSize": 25,
-                  "aiPrompt": "text",
+                  "aiPrompt": "fourth slide content only",
                   "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi nisi ante, hendrerit eu maximus mattis, tincidunt at arcu. Maecenas suscipit.",
                   "underline": false,
                   "overline": false,
@@ -1217,7 +1217,7 @@
                   "skewY": 0,
                   "cropX": 0,
                   "cropY": 0,
-                  "src": "https://ornate-fenglisu-117ad6.netlify.app//templates/alex.png",
+                  "src": "https://slidelink.netlify.app//templates/alex.png",
                   "crossOrigin": null,
                   "filters": []
               }

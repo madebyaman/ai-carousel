@@ -21,7 +21,7 @@ const handler = async (req: Request): Promise<Response> => {
   const payload = {
     model: 'gpt-3.5-turbo',
     messages: [{ role: "user", content: generatePrompt(prompt, template) }],
-    temperature: 0.8,
+    temperature: 0.7,
     max_tokens: 300,
     top_p: 1.0,
     frequency_penalty: 0,
@@ -58,7 +58,7 @@ const handler = async (req: Request): Promise<Response> => {
 };
 
 function generatePrompt(prompt: string, template: string[]) {
-  return `Generate a LinkedIn carousel content for this prompt: ${prompt}. It should follow this example template: ${template}. Each slide should start with 'Slide {number}' and end with 'EndSlide'. If there are multiple text elements in a slide, separate them with 'SlideNext'. Keep same number of slides as the template. Keep the same text elements in each slide. If a slide has only title, then create just the title without any content. Also make sure content is of same character length as the template.
+  return `Generate a LinkedIn carousel content for this prompt: ${prompt}. It should follow this example template: ${template}. Each slide should start with 'Slide {number}' and end with 'EndSlide'. If there are multiple text elements in a slide, separate them with 'SlideNext'. Keep same number of slides as the template with same number of text elements. Some slides may only have title and no content or vice-versa follow that structure.
 
   For example:
   prompt: "3 ways to build an email list"

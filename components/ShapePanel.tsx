@@ -129,7 +129,6 @@ const ShapePanel = ({
     if (isShapeSelected) {
       // @ts-ignore
       activeObject?.set({ rx: value, ry: value });
-      console.log(activeObject);
       editor?.canvas.renderAll();
       saveCanvas();
     }
@@ -163,7 +162,7 @@ const ShapePanel = ({
             ? activeObject.fill
             : isRgbColor(activeObject.fill)
             ? rgbToHex(activeObject.fill)
-            : '#000000';
+            : '#fff';
         });
       }
       if (activeObject.stroke) {
