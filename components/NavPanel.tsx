@@ -101,7 +101,7 @@ export default function NavPanel({
 
   function downloadPNG() {
     // Generate data URL
-    const dataURL = editor?.canvas.toDataURL({
+    const dataURL = editor?.canvas?.toDataURL({
       format: 'png',
       quality: 0.9, // Quality from 0 (low) to 1 (high)
     });
@@ -260,10 +260,9 @@ export default function NavPanel({
             bgColor: '#005ce6',
           }}
           onClick={async () => {
-            await exportPDF();
-            // downloadPNG();
-            // localStorage.setItem(
-            //   'editorState',
+            // await exportPDF();
+            downloadPNG();
+            // localStorage.setItem( 'editorState',
             //   JSON.stringify(state.editorState)
             // );
           }}

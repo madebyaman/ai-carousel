@@ -4,23 +4,22 @@ export const config = {
 };
 
 const handler = async (req: Request) => {
-  const { prompt, template } = (await req.json()) as {
+  const { prompt } = (await req.json()) as {
     prompt?: string;
-    template?: string;
   };
   if (!process.env.OPENAI_API_KEY) {
     return new Response("No api key found", { status: 400 });
   }
 
 
-  if (!prompt || !template) {
+  if (!prompt) {
     return new Response("No prompt in the request", { status: 400 });
   }
 
 
   const payload = {
     model: 'gpt-3.5-turbo',
-    messages: [{ role: "user", content: generatePrompt(prompt, template) }],
+    messages: [{ role: "user", content: generatePrompt(prompt) }],
     temperature: 0.7,
     max_tokens: 300,
     top_p: 1.0,
@@ -50,9 +49,12 @@ const handler = async (req: Request) => {
   }
 };
 
-function generatePrompt(prompt: string, template: string) {
-  return `Create LinkedIn carousel content based on this topic: ${prompt}. Use this example template: ${template}. Start each slide with 'Slide {number}' and end with 'EndSlide'. If a slide has multiple text parts, divide them with 'SlideNext'. Keep the same number of slides as in the template. If a template slide has a title but no content, your output slide should also have no content. If a slide has content but no title, your output slide should have only content. Final slide will be Call to action."
-  `
+function generatePrompt(prompt: string) {
+  return `Create a LinkedIn carousel on the topic: '${prompt}'. The carousel will consist of 5 slides.
+  1. The first slide will have the topic title only.
+  2. Slides 2 to 4 will each contain a short title and a piece of content. The content should be a maximum of 2-3 sentences long. Separate title and content with keyword 'SlideNext'.
+  3. The final slide, Slide 5, will be a Call to Action (CTA) with title only.
+  4. Every slide should begin with keyword 'Slide {number}' and end with keyword 'EndSlide'. For example, 'Slide 1: Title. EndSlide Slide 2: Title SlideNext Content EndSlide'.`
 }
 
 export default handler;

@@ -58,16 +58,13 @@ export default function SelectTemplate({
     }
     setLoading(true);
     if (ai) {
-      const templateArrays = generateTemplateArrays(
-        templates[selectedTemplate].json as any
-      );
-      const textTemplate = generateTextTemplate(templateArrays);
-      const aiResult = await generateAIContent(textTemplate);
+      const aiResult = await generateAIContent();
       const result = aiResult.choices[0].message.content;
+      console.log(result);
       const parsedResult = parseAIResponse(result);
+      console.log(parsedResult);
       replaceTemplateText(
         templates[selectedTemplate].json as any,
-        templateArrays,
         parsedResult
       );
     }
@@ -76,11 +73,7 @@ export default function SelectTemplate({
     setTemplate('2');
   }
 
-  function replaceTemplateText(
-    template: TemplateItem[],
-    templateArray: string[][],
-    result: string[][]
-  ) {
+  function replaceTemplateText(template: TemplateItem[], result: string[][]) {
     let currentSlideIndex = 0;
     let currentObjectIndex = 0;
 
@@ -89,17 +82,12 @@ export default function SelectTemplate({
       for (let j = 0; j < obj.objects.length; j++) {
         const object = obj.objects[j];
         if (object.type === 'textbox' && object.aiPrompt) {
-          // check if the current ai prompt matches with the template ai prompt
-          if (
-            object.text === templateArray[currentSlideIndex][currentObjectIndex]
-          ) {
-            // replace the text with the AI generated text
+          if (currentObjectIndex < result[currentSlideIndex].length) {
             object.text = result[currentSlideIndex][currentObjectIndex];
           }
-          // move to the next object in the slide
+
           currentObjectIndex++;
-          if (currentObjectIndex >= templateArray[currentSlideIndex].length) {
-            // move to the next slide and reset the object index
+          if (currentObjectIndex >= result[currentSlideIndex].length) {
             currentSlideIndex++;
             currentObjectIndex = 0;
           }
@@ -137,14 +125,13 @@ export default function SelectTemplate({
     return textTemplate.slice(0, -2); // Remove the trailing comma and space
   }
 
-  async function generateAIContent(textTemplate: string) {
+  async function generateAIContent() {
     const response = await fetch('/api/generate', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        template: textTemplate,
         prompt,
       }),
     });
@@ -156,15 +143,21 @@ export default function SelectTemplate({
   }
 
   function parseAIResponse(aiResponse: string) {
-    const slides = aiResponse.split('EndSlide').map((s) => s.trim());
+    const slides = aiResponse
+      .split(/EndSlide\n?/)
+      .filter((s) => s.trim().length > 0);
 
     let parsedResult = [];
 
     for (let slide of slides) {
-      // Remove slide prefix (e.g. 'Slide 1:')
-      const slideContent = slide.replace(/Slide \d+: /, '');
+      // Remove slide prefix (e.g. 'Slide \d+: ')
+      const slideContent = slide.replace(/Slide \d+: /g, '').trim();
       const elements = slideContent.split('SlideNext').map((s) => s.trim());
-      parsedResult.push(elements);
+      // Remove any empty elements due to trailing 'SlideNext'
+      const nonEmptyElements = elements.filter((s) => s !== '');
+      if (nonEmptyElements.length > 0) {
+        parsedResult.push(nonEmptyElements);
+      }
     }
 
     return parsedResult;
