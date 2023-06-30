@@ -41,6 +41,15 @@ export default function SelectTemplate({
   const [selectedTemplate, setSelectedTemplate] = React.useState<
     null | number
   >();
+  const buttonRef = React.useRef<null | HTMLButtonElement>(null);
+
+  function scrollToButton() {
+    if (buttonRef.current) {
+      buttonRef.current.scrollIntoView({
+        behavior: 'smooth',
+      });
+    }
+  }
 
   async function handleGenerate() {
     if (selectedTemplate === undefined) return;
@@ -201,13 +210,19 @@ export default function SelectTemplate({
               <Carousel
                 key={i}
                 images={template.slides}
-                onClick={() => setSelectedTemplate(i)}
+                onClick={() => {
+                  scrollToButton();
+                  setSelectedTemplate(i);
+                }}
                 borderColor={i === selectedTemplate ? 'blue.500' : 'gray.200'}
               />
             ))}
             <Box
               cursor={'pointer'}
-              onClick={() => setSelectedTemplate(null)}
+              onClick={() => {
+                scrollToButton();
+                setSelectedTemplate(null);
+              }}
               borderRadius={'md'}
               border="1px solid"
               borderColor={selectedTemplate === null ? 'blue.500' : 'gray.200'}
@@ -298,6 +313,7 @@ export default function SelectTemplate({
               </AnimatePresence>
             </motion.div>
             <PrimaryButton
+              ref={buttonRef}
               isLoading={loading}
               disabled={selectedTemplate === undefined || loading}
               opacity={selectedTemplate === undefined ? '0.5' : '1'}
