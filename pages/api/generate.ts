@@ -1,3 +1,6 @@
+if (!process.env.OPENAI_API_KEY) {
+  throw new Error("Missing env var from OpenAI");
+}
 
 export const config = {
   runtime: "edge",
@@ -13,11 +16,7 @@ const handler = async (req: Request) => {
   if (!prompt || !template) {
     return new Response("No prompt in the request", { status: 400 });
   }
-  if (!process.env.OPENAI_API_KEY) {
-    return new Response("No api key", { status: 400 });
-  }
 
-  // "Generate 2 Casual twitter biographies with no hashtags and clearly labeled "1." and "2.". nulln      Make sure each generated biography is less than 160 characters, has short sentences that are found in Twitter bios, and base them on this context: Frontend developer, aspiring indie hacker."
 
   const payload = {
     model: 'gpt-3.5-turbo',
