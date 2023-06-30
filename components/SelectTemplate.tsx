@@ -6,6 +6,10 @@ import {
   Container,
   Heading,
   Textarea,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
 } from '@chakra-ui/react';
 import Logo from './Logo';
 import Link from 'next/link';
@@ -243,7 +247,6 @@ export default function SelectTemplate({
             mb="10"
             display={'flex'}
             flexDirection={'column'}
-            gap="3"
             alignItems={'start'}
           >
             <Checkbox
@@ -253,6 +256,7 @@ export default function SelectTemplate({
               alignItems={'center'}
               disabled={selectedTemplate === null}
               gap="1"
+              mb="3"
             >
               <Box
                 as="span"
@@ -304,6 +308,22 @@ export default function SelectTemplate({
                 )}
               </AnimatePresence>
             </motion.div>
+            <Alert
+              status="info"
+              maxW="2xl"
+              display={'flex'}
+              alignItems={'flex-start'}
+              justifyContent={'flex-start'}
+              rounded="md"
+              colorScheme="gray"
+              mb="5"
+            >
+              <AlertIcon />
+              <AlertDescription textAlign={'left'} fontSize={'sm'}>
+                If using AI, please manually check content for correctness as
+                well design after the generated content is added.
+              </AlertDescription>
+            </Alert>
             <PrimaryButton
               isLoading={loading}
               disabled={selectedTemplate === undefined || loading}
