@@ -18,15 +18,6 @@ export const templates = [
   },
   {
     slides: [
-      '/template-img/1/1.png',
-      '/template-img/1/2.png',
-      '/template-img/1/3.png',
-      '/template-img/1/4.png',
-    ],
-    json: template1,
-  },
-  {
-    slides: [
       '/template-img/4/1.png',
       '/template-img/4/2.png',
       '/template-img/4/3.png',
@@ -43,6 +34,15 @@ export const templates = [
       '/template-img/2/5.png',
     ],
     json: template2,
+  },
+  {
+    slides: [
+      '/template-img/1/1.png',
+      '/template-img/1/2.png',
+      '/template-img/1/3.png',
+      '/template-img/1/4.png',
+    ],
+    json: template1,
   },
 ];
 
