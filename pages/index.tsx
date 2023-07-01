@@ -2,6 +2,7 @@ import Carousel from '@/components/Carousel';
 import Logo from '@/components/Logo';
 import Templates from '@/components/Templates';
 import BackgroundSVG from '@/components/bg-svg';
+import screenshot from '@/components/app.png';
 import { state } from '@/utils/editorState';
 import {
   Box,
@@ -156,9 +157,10 @@ export default function Home() {
               Start creating
             </Button>
             <NextImage
-              src="/app.png"
+              src={screenshot}
               width={4140 / 3}
               height={2580 / 3}
+              placeholder="blur"
               alt="4px"
             />
           </ChakraBox>

@@ -37,7 +37,7 @@ const Carousel = ({
       display={'inline-block'}
     >
       <MotionBox
-        w="300px"
+        w="250px"
         h="300px"
         bgColor={'white'}
         overflow="hidden"
@@ -50,8 +50,15 @@ const Carousel = ({
             display: 'flex',
           }}
         >
-          {images.map((image, index) => (
-            <Image key={image} width={300} height={300} alt="" src={image} />
+          {images.map((image) => (
+            <Image
+              key={image}
+              width={450}
+              height={450}
+              alt=""
+              loading="lazy"
+              src={image}
+            />
           ))}
         </motion.div>
         <Flex

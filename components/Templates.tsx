@@ -58,9 +58,11 @@ export default function Templates() {
       flexWrap={'wrap'}
       justifyContent={'center'}
     >
-      {templates.map((template, i) => (
-        <Carousel key={i} images={template.slides} />
-      ))}
+      {templates
+        .filter((_, i) => i < 3)
+        .map((template, i) => (
+          <Carousel key={i} images={template.slides} />
+        ))}
     </Box>
   );
 }
