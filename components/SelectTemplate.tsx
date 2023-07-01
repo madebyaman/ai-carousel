@@ -64,7 +64,6 @@ export default function SelectTemplate({
     if (ai) {
       const aiResult = await generateAIContent();
       const result = aiResult.choices[0].message.content;
-      console.log(result);
       const parsedResult = parseAIResponse(result);
       console.log(parsedResult);
       replaceTemplateText(
@@ -86,12 +85,18 @@ export default function SelectTemplate({
       for (let j = 0; j < obj.objects.length; j++) {
         const object = obj.objects[j];
         if (object.type === 'textbox' && object.aiPrompt) {
-          if (currentObjectIndex < result[currentSlideIndex].length) {
+          if (
+            currentSlideIndex < result.length &&
+            currentObjectIndex < result[currentSlideIndex].length
+          ) {
             object.text = result[currentSlideIndex][currentObjectIndex];
           }
 
           currentObjectIndex++;
-          if (currentObjectIndex >= result[currentSlideIndex].length) {
+          if (
+            currentSlideIndex < result.length &&
+            currentObjectIndex >= result[currentSlideIndex].length
+          ) {
             currentSlideIndex++;
             currentObjectIndex = 0;
           }
@@ -115,18 +120,6 @@ export default function SelectTemplate({
       arrays.push(currentSlide);
     }
     return arrays;
-  }
-
-  function generateTextTemplate(templateArrays: string[][]) {
-    let textTemplate = '';
-
-    for (let i = 0; i < templateArrays.length; i++) {
-      textTemplate += `Slide ${i + 1}: `;
-      textTemplate += templateArrays[i].join(' SlideNext ');
-      textTemplate += ' EndSlide, ';
-    }
-
-    return textTemplate.slice(0, -2); // Remove the trailing comma and space
   }
 
   async function generateAIContent() {

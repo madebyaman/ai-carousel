@@ -52,7 +52,7 @@ const handler = async (req: Request) => {
 function generatePrompt(prompt: string) {
   return `Create a LinkedIn carousel on the topic: '${prompt}'. The carousel will consist of 5 slides.
   1. The first slide will have the topic title only.
-  2. Slides 2 to 4 will each contain a short title and a piece of content. The content should be a maximum of 2-3 sentences long. Separate title and content with keyword 'SlideNext'.
+  2. Slides 2 to 4 will each contain a short title and a piece of content. Keep slide a maximum of 2-3 sentences long and Slide Title should be 4-5 words maximum. Separate title and content with keyword 'SlideNext'.
   3. The final slide, Slide 5, will be a Call to Action (CTA) with title only.
   4. Every slide should begin with keyword 'Slide {number}' and end with keyword 'EndSlide'. For example, 'Slide 1: Title. EndSlide Slide 2: Title SlideNext Content EndSlide'.`
 }
